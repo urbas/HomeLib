@@ -19,37 +19,37 @@ from homelib.utils import joinPaths
 """
 The name of the HomeLib configuration file.
 """
-HOMELIB_CONFIG_FILE="homelib.config"
+HOMELIB_CONFIG_FILE = "homelib.config"
 
 """
 The name of the directory which contains the HomeLib configuration file.
 """
-HOMELIB_CONFIG_DIR=".homelib"
+HOMELIB_CONFIG_DIR = ".homelib"
 
 """
 The section that contain all general information for the HomeLib.
 """
-CFG_SEC_GINFO="General Information"
+CFG_SEC_GINFO = "General Information"
 
 """
 The given name of the primary user of HomeLib.
 """
-CFG_GINFO_NAME="name"
+CFG_GINFO_NAME = "name"
 
 """
 The family name of the primary user of HomeLib.
 """
-CFG_GINFO_SURNAME="surname"
+CFG_GINFO_SURNAME = "surname"
 
 """
 The e-mail of the primary user of HomeLib.
 """
-CFG_GINFO_EMAIL="email"
+CFG_GINFO_EMAIL = "email"
 
 """
 The folder where to store default logs produced by HomeLib.
 """
-CFG_GINFO_LOG_DIR="logDir"
+CFG_GINFO_LOG_DIR = "logDir"
 
 
 
@@ -120,14 +120,18 @@ class Main(object):
         self.__configFileVars = None
         # Try to read the configuration file. Raise an exception if the
         # configuration file could not be loaded.
+        loadDirs = [p
+                    for p in
+                    [configFile,
+                     homeDir,
+                     join(homeDir, HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE) if homeDir else None,
+                     join(getHomePath(), HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
+                     join("/etc", HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
+                     getHomeLibFile(HOMELIB_CONFIG_FILE)]
+                    if p]
         self.__config = SafeConfigParser()
-        if (not (configFile and _tryLoadConfigFile(self.__config, configFile)) and
-            not (homeDir and _tryLoadConfigFile(self.__config, join(homeDir, HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE))) and
-            not _tryLoadConfigFile(self.__config, join(getHomePath(), HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE)) and
-            not _tryLoadConfigFile(self.__config, join("/etc", HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE)) and
-            not _tryLoadConfigFile(self.__config, getHomeLibFile(HOMELIB_CONFIG_FILE))
-           ):
-            raise Exception("The configuration file could not be loaded. Please check that there is a configuration file in one of the predefined directories.")
+        if (not any([_tryLoadConfigFile(self.__config, p) for p in loadDirs])):
+            raise Exception("The configuration file could not be loaded. Please check that there is a configuration file in one of these paths: " + str(loadDirs))
         if not isdir(self.__absNestDir):
             raise Exception("The nest directory '" + self.__absNestDir + "' is not valid. Please specify the '" + ENV_VAR_HOME_ABS_PATH + "' environment variable, which tells where to look for the 'Nest' folder.")
         ###
