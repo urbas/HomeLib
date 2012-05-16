@@ -118,8 +118,12 @@ class Main(object):
         self.__absHomeDir = abspath(homeDir or getHomePath())
         self.__absNestDir = abspath(nestDir or join(self.__absHomeDir, "Nest"))
         self.__configFileVars = None
+        
         # Try to read the configuration file. Raise an exception if the
         # configuration file could not be loaded.
+        
+        # First we build a list of paths where we will search for the
+        # configuration file. 
         loadDirs = [p
                     for p in
                     [configFile,
@@ -130,6 +134,8 @@ class Main(object):
                      getHomeLibFile(HOMELIB_CONFIG_FILE)]
                     if p]
         self.__config = SafeConfigParser()
+        # Now try to load the configuration file and report an error is it
+        # could not be loaded from any of the predefined paths. 
         if (not any([_tryLoadConfigFile(self.__config, p) for p in loadDirs])):
             raise Exception("The configuration file could not be loaded. Please check that there is a configuration file in one of these paths: " + str(loadDirs))
         if not isdir(self.__absNestDir):
