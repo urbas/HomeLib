@@ -46,6 +46,7 @@ from maco.selinux import *
 from maco.users import *
 from maco.utils import *
 from mydev.referencer import *
+from maco.services import *
 
 # Parameters:
 #
@@ -246,86 +247,32 @@ class MachineConfig(ConfigScript):
 
     # Disables all the unnecessary services and enables some on all types of computers
     def update11(self):
-        self.getMain().serviceSoftware().disableServices([
-            "avahi-daemon",
-            "fcoe",
-            "iscsi",
-            "iscsid",
-            "mdmonitor-takeover",
-            "mdmonitor",
-            "netfs",
-            "sendmail",
-            "sm-client",
-            "dbus-org.bluez",
-            "fcoe",
-            'sshd-keygen'
-        ])
-        self.getMain().serviceSoftware().enableServices([
-            'chronyd'
-        ])
+        setupServices1Common(self)
 
     # Enables services needed by maco
     @updateOnly(MACHINE_TYPE_MACO_SERVER)
     def update12(self):
-        self.getMain().serviceSoftware().enableServices([
-                'network',
-                'httpd',
-                'dovecot',
-                'postfix',
-                'named',
-                'sshd'
-            ])
-        self.getMain().serviceSoftware().disableServices([
-                "NetworkManager"
-            ])
+        setupServices2Maco(self)
 
     # Disables all services not required for laptops
     @updateOnly(MACHINE_TYPE_LAPTOP)
     def update13(self):
-        self.getMain().serviceSoftware().disableServices([
-            "abrt-ccpp",
-            "abrt-oops",
-            "abrt-vmcore",
-            "abrtd",
-            "atd",
-            "auditd"
-            "avahi-daemon",
-            "crond",
-            "fcoe",
-            "fsck-root",
-            "ip6tables",
-            "iptables",
-            "iscsi",
-            "iscsid",
-            "livesys",
-            "livesys-late",
-            "lldpad",
-            "mdmonitor-takeover",
-            "mdmonitor",
-            "netfs",
-            "rsyslog",
-            "sendmail",
-            "sm-client"
-        ])
+        setupServices3Laptop(self)
 
     # Enables SSHD and assigns a static IP the home desktop computer (old maco).
     @updateOnly(MACHINE_TYPE_HOME_DESKTOP)
     def update14(self):
         setupDesktopNetworking(self)
-        self.getMain().serviceSoftware().enableServices([
-                'network',
-                'sshd'
-            ])
-        self.getMain().serviceSoftware().disableServices([
-                'NetworkManager'
-            ])
+        setupServices4Desktop(self)
 
     # Installs the mono-nat library for automatic configuration of port forwarding on the local router.
+    # This failed. I did not manage to set the automatic port forwarding up.
     @updateOnly(MACHINE_TYPE_MACO_SERVER)
     def update15(self):
-        self.getMain().serviceSoftware().install(
-                'mono-nat'
-            )
+        #self.getMain().serviceSoftware().install(
+        #        'mono-nat'
+        #    )
+        pass
 
 
 
