@@ -1,14 +1,8 @@
 from ConfigParser import SafeConfigParser
-from homelib.utils import ENV_VAR_HOME_ABS_PATH
-from os.path import abspath
-from os.path import isdir
-from os.path import isfile
-from os.path import join
-
-from homelib.utils import cfgGetOrDefault
-from homelib.utils import getHomeLibFile
-from homelib.utils import getHomePath
-from homelib.utils import joinPaths
+from os.path import *
+from homelib.utils import *
+import sys
+import os
 
 
 
@@ -22,9 +16,14 @@ The name of the HomeLib configuration file.
 HOMELIB_CONFIG_FILE = "homelib.config"
 
 """
-The name of the directory which contains the HomeLib configuration file.
+The name of the `home` directory which contains the HomeLib configuration file.
 """
 HOMELIB_CONFIG_DIR = ".homelib"
+
+"""
+The name of the `etc` directory which contains the HomeLib configuration file.
+"""
+HOMELIB_ETC_CONFIG_DIR = "homelib"
 
 """
 The section that contain all general information for the HomeLib.
@@ -84,7 +83,8 @@ def _tryLoadConfigFile(config, path):
 
 class Main(object):
     """
-    This class contains all basic information for all HomeLib services.
+    This class is the main entry point to the HomeLib services and 
+    contains all configuration information.
 
     It is important to note that this class loads up a configuration file.
     If not explicitly given, then this class first tries to find the
@@ -92,23 +92,19 @@ class Main(object):
     other default paths. Here is the order of search:
 
         <homeDir>/.homelib/homelib.config
-        ~/.homelib/homelib.config
         /etc/homelib/homelib.config
         <script location>/homelib.config
 
-    Keys used in the 'homelib.config' file are listed in variables whose name
+    Keys from the 'homelib.config' file that are used in this class are listed in variables whose name
     starts with 'CFG_<secname word>_<keyname>' and 'CFG_SEC_<secname word>'.
     """
 
-    def __init__(self, homeDir=None, nestDir=None, configFile=None):
+    def __init__(self, homeDir=None, configFile=None):
         """
         Initialises an instance of this class.
 
-        @param  absHomeDir  The path of the desired home folder to be used in
+        @param  homeDir     The path of the desired home folder to be used in
                             this HomeLib session.
-
-        @param  nestName    The name of the directory that contains the 'Nest'
-                            local repository clone.
 
         @param  configFile  The path to the HomeLib configuration file.
         """
@@ -116,7 +112,6 @@ class Main(object):
         ### Configuration
         ###
         self.__absHomeDir = abspath(homeDir or getHomePath())
-        self.__absNestDir = abspath(nestDir or join(self.__absHomeDir, "Nest"))
         self.__configFileVars = None
         
         # Try to read the configuration file. Raise an exception if the
@@ -127,30 +122,26 @@ class Main(object):
         loadDirs = [p
                     for p in
                     [configFile,
-                     homeDir,
                      join(homeDir, HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE) if homeDir else None,
                      join(getHomePath(), HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
-                     join("/etc", HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
+                     join("/etc", HOMELIB_ETC_CONFIG_DIR, HOMELIB_CONFIG_FILE),
                      getHomeLibFile(HOMELIB_CONFIG_FILE)]
                     if p]
+        
         self.__config = SafeConfigParser()
+        
         # Now try to load the configuration file and report an error is it
-        # could not be loaded from any of the predefined paths. 
-        if (not any([_tryLoadConfigFile(self.__config, p) for p in loadDirs])):
+        # could not be loaded from any of the predefined paths.
+        self.__configFile = next((p for p in loadDirs if _tryLoadConfigFile(self.__config, p)), None)
+        if self.__configFile is None:
             raise Exception("The configuration file could not be loaded. Please check that there is a configuration file in one of these paths: " + str(loadDirs))
-        if not isdir(self.__absNestDir):
-            raise Exception("The nest directory '" + self.__absNestDir + "' is not valid. Please specify the '" + ENV_VAR_HOME_ABS_PATH + "' environment variable, which tells where to look for the 'Nest' folder.")
+        
         ###
         ### Services
         ###
-        self.__nestService = None
         self.__myMachinesService = None
         self.__configService = None
         self.__softwareService = None
-        ###
-        ### Events
-        ###
-        self.__dirNestChangedListeners = []
         ###
         ### Logging
         ###
@@ -165,18 +156,6 @@ class Main(object):
     ###
     ### Service Providers Methods
     ###
-
-    def serviceNest(self):
-        """
-        @returns    The currently configured nest service implementation. It
-                    provides version control functionality for the 'Nest'
-                    repository (this is the repository that contains this
-                    library and all related configuration files).
-        """
-        if not self.__nestService:
-            from homelib.nest import Nest
-            self.__nestService = Nest.loadChosenImpl(self)
-        return self.__nestService
 
 
 
@@ -317,106 +296,19 @@ class Main(object):
 
 
 
-    def dirNest(self):
+    def dirConfFile(self):
         """
-        @returns    The absolute path to the local clone of the 'Nest'
-                    repository. This repository contains this library and
-                    absolutely all related files.
+        @returns    The absolute path to the loaded configuration file.
         """
-        return self.__absNestDir;
+        return self.__configFile;
 
 
 
-    def setDirNest(self, dirPath):
+    def dirConfDir(self):
         """
-        @param  dirPath The new directory where to find the 'Nest' repository.
+        @returns    The directory of the loaded configuration file.
         """
-        dirPath = joinPaths(dirPath)
-        if not isdir(dirPath):
-            raise IOError("Could not change the Nest folder to '" + dirPath + "'. Please specify a valid folder.")
-        oldDir = self.__absNestDir
-        self.__absNestDir = dirPath
-        self.__refreshConfigFileVars()
-        self.__invokeDirNestChangedEvent(oldDir)
-
-
-
-    def dirDokumenti(self):
-        """
-        @returns    The directory with random documents.
-        """
-        return join(self.dirNest(), "Dokumenti");
-
-
-
-    def dirProjects(self):
-        """
-        @returns    The directory with random projects (including this library).
-        """
-        return join(self.dirNest(), "Projects");
-
-
-
-    def dirOsebno(self):
-        """
-        @returns    The directory with personal stuff.
-        """
-        return join(self.dirNest(), "Osebno");
-
-
-
-    def dirNastavitve(self):
-        """
-        @returns    The directory with important notes and configuration files.
-        """
-        return join(self.dirNest(), "Nastavitve");
-
-
-
-    def dirResearch(self):
-        """
-        @returns    The directory with PhD related files.
-        """
-        return join(self.dirNest(), "Research")
-
-
-
-    def dirHomeLibConf(self):
-        """
-        @returns    The directory with private per-user HomeLib configuration
-                    files.
-        """
-        return join(self.dirHome(), HOMELIB_CONFIG_DIR)
-
-
-
-    ###
-    ### Events
-    ###
-
-    def addDirNestChangedListener(self, callback):
-        """
-        Registers the given callback to the 'Nest Directory Changed' event.
-
-        @param  callback    This method will be invoked when the event is
-                            triggered.
-
-                            This method will be called with two arguments:
-
-                                main      - the source of the event.
-
-                                eventData - the old value of the Nest directory.
-        """
-        if not callback:
-            raise Exception("A valid event callback must be specified.")
-        self.__dirNestChangedListeners.append(callback)
-
-    def removeDirNestChangedListener(self, callback):
-        self.__dirNestChangedListeners.remove(callback)
-
-    def __invokeDirNestChangedEvent(self, eventData):
-        for callback in self.__dirNestChangedListeners:
-            callback(self, eventData)
+        return os.path.dirname(self.__configFile);
 
 
 
@@ -426,12 +318,34 @@ class Main(object):
     
     def __refreshConfigFileVars(self):
         self.__configFileVars = {
-            'dokumentidir'  :   self.dirDokumenti(),
-            'homedir'       :   self.dirHome(),
-            'nastavitvedir' :   self.dirNastavitve(),
-            'nestdir'       :   self.dirNest(),
-            'osebnodir'     :   self.dirOsebno(),
-            'projectsdir'   :   self.dirProjects(),
-            'researchdir'   :   self.dirResearch(),
-            'homelibconfdir':   self.dirHomeLibConf()
+            'homedir'   :   self.dirHome(),
+            'confdir'   :   self.dirConfDir(),
+            'conffile'  :   self.dirConfFile()
         }
+
+
+
+###
+### Main entry point:
+###
+def main():
+    import mainargs
+    args = mainargs.parser.parse_args()
+    main = Main()
+    cfgService = main.serviceConfig()
+    if args.listScripts:
+        print "The list of configuration scripts:"
+        for script in cfgService.getCfgScriptsNames():
+            print "  - " + script + " :: " + cfgService.getCfgScriptDetails(script)[4] + " :: " + str(cfgService.getCfgScriptDetails(script))
+        return 0
+    elif args.scriptName is None:
+        # Run all configuration scripts:
+        for script in cfgService.getCfgScriptsNames():
+            cfgService.runScript(script)
+    else:
+        # Run the selected configuration script:
+        cfgService.runScript(args.scriptName, args.start, args.end)
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

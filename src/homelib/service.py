@@ -40,7 +40,6 @@ class Service(object):
         """
         from homelib.main import Main
         self.__main = main if isinstance(main, Main) else Main()
-        self.__main.addDirNestChangedListener(self.onDirNestChanged)
 
 
 
@@ -53,14 +52,6 @@ class Service(object):
 
 
 
-    def onDirNestChanged(self, main, oldNestDir):
-        """
-        This method is invoked whenever the main 'Nest' directory changes.
-        """
-        pass
-
-
-
     def close(self):
         """
         This method is called by 'main' after the service is no longer needed
@@ -69,7 +60,6 @@ class Service(object):
         This method should release all resources allocated by this service
         during its life.
         """
-        self.__main.removeDirNestChangedListener(self.onDirNestChanged)
 
 
 

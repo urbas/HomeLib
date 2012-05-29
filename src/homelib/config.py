@@ -98,15 +98,19 @@ class Config(Service):
         # Get all the known configuration scripts from the main HomeLib's
         # configuration file.
         self.__cfgScripts = {}
+        # A list of all the names of the configuration scripts (in the same order
+        # as they were specified in the HomeLib configuration)
+        self.__cfgScriptsNames = []
         main = self.getMain()
         i = 0
         while True:
-            curCfgScript = main.getCfgs(CFG_SEC_CONFIG, [i.__str__() + ".cfgScript" + s for s in [ "Name", "Class", "Path", "Store", "Description" ]])
+            curCfgScript = main.getCfgs(CFG_SEC_CONFIG, [i.__str__() + ".cfgScript" + s for s in [ "Name", "Class", "Path", "Store", "Description", "RootRequired" ]])
             if not curCfgScript[0]:
                 break;
             if self.__cfgScripts.has_key(curCfgScript[0]):
                 raise Exception("Found duplicate configuration entry '" + curCfgScript[0] + "'.")
             self.__cfgScripts[curCfgScript[0]] = curCfgScript
+            self.__cfgScriptsNames.append(curCfgScript[0])
             i = i + 1
 
 
@@ -132,6 +136,9 @@ class Config(Service):
 
                         4   - A human readable description of what the script
                               actually does.
+
+                        5   - Indicates whether root privileges are required to
+                              run this script.
         """
         return self.__cfgScripts.copy()
 
@@ -147,9 +154,10 @@ class Config(Service):
 
     def getCfgScriptsNames(self):
         """
-        @returns    A collection of configuration scripts' names.
+        @returns    A collection of configuration scripts' names (in the same order as
+                    they were specified in the HomeLib configuration file).
         """
-        return self.__cfgScripts.keys()
+        return self.__cfgScriptsNames
 
 
 
