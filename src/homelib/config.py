@@ -298,6 +298,8 @@ class Config(Service):
         @param  maxVersion  <b>[Optional]</b> The version to which to update.
                             This is the maximum number for which the
                             corresponding config update function will be called.
+                            If `None` the script will be executed until its last
+                            `update#` function.
 
         @throws If for any reason the script failed or did not start at all.
         """
@@ -319,10 +321,10 @@ class Config(Service):
             upFunPrfx = inst.getUpdateMethodPrefix()
 
             # Get the latest version and start updating.
-            i = startFrom if isinstance(startFrom, int) and startFrom >= 0 else inst.getLastRunVersion()
+            i = (startFrom - 1) if isinstance(startFrom, int) and startFrom > 0 else inst.getLastRunVersion()
 
             # Now start calling all the update functions.
-            while maxVersion < 0 or i < maxVersion:
+            while maxVersion is None or i < maxVersion:
                 i = i + 1
 
                 # Construct the name of the next update function to call.

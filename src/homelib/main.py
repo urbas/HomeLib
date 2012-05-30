@@ -1,8 +1,8 @@
 from ConfigParser import SafeConfigParser
-from os.path import *
-from homelib.utils import *
-import sys
+from homelib.utils import getHomePath, getHomeLibFile, cfgGetOrDefault
+from os.path import join
 import os
+import sys
 
 
 
@@ -69,8 +69,7 @@ def _tryLoadConfigFile(config, path):
 
     @returns    True, if the reading succeeded. False otherwise.
     """
-    if isfile(path):
-        # @type config SafeConfigParser
+    if os.path.isfile(path):
         config.read(path)
         return True
     return False
@@ -111,7 +110,7 @@ class Main(object):
         ###
         ### Configuration
         ###
-        self.__absHomeDir = abspath(homeDir or getHomePath())
+        self.__absHomeDir = os.path.abspath(homeDir or getHomePath())
         self.__configFileVars = None
         
         # Try to read the configuration file. Raise an exception if the
@@ -329,22 +328,29 @@ class Main(object):
 ### Main entry point:
 ###
 def main():
+    
+    # Parse the user's arguments:
     import mainargs
     args = mainargs.parser.parse_args()
+    
     main = Main()
     cfgService = main.serviceConfig()
+    
+    # Shall we just print the available machine configuration scripts?
     if args.listScripts:
         print "The list of configuration scripts:"
         for script in cfgService.getCfgScriptsNames():
             print "  - " + script + " :: " + cfgService.getCfgScriptDetails(script)[4] + " :: " + str(cfgService.getCfgScriptDetails(script))
         return 0
+    # Shall we run a specific configuration script?
     elif args.scriptName is None:
         # Run all configuration scripts:
         for script in cfgService.getCfgScriptsNames():
             cfgService.runScript(script)
+    # Okay, run everything (update the whole computer):
     else:
         # Run the selected configuration script:
-        cfgService.runScript(args.scriptName, args.start, args.end)
+        cfgService.runScript(args.scriptName, args.start[0] if args.start else None, args.end[0] if args.end else None)
     return 0
 
 if __name__ == '__main__':

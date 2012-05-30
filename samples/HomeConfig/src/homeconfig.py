@@ -28,59 +28,18 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
-
-from logging import info
-from logging import warning
-from os import chmod
-from os.path import join
-
 from homelib.config import ConfigScript
-from homelib.config import updateAllBut
-from homelib.config import updateMachine
-from homelib.config import updateOnly
-from homelib.homeutils import installConfigDir
-from homelib.mymachines import MACHINE_TYPE_CL_OFFICE
-from homelib.mymachines import MACHINE_TYPE_MACO_SERVER
-from homelib.scripts import installBinScript
-from homelib.scripts import installBinScriptAbs
-from homelib.scripts import installNautilusScript
-from homelib.templates import installTemplate
-from homelib.templates import installTemplateAbs
-from homelib.util.gconf.keybindings import getNextCustomDir
-from homelib.utils import UTILS_CREATE_LINK_DELETE
-from homelib.utils import UTILS_CREATE_LINK_HARD_LINK
-from homelib.utils import appendLinesToFile
-from homelib.utils import createLink
-from homelib.utils import linkDirTree
-from homelib.utils import linkInSubfolders
+import os
+from logging import warning, info
+from homelib.utils import appendLinesToFile, createLink,\
+    UTILS_CREATE_LINK_DELETE, joinPaths, linkInSubfolders
 
 
 
 ###
 ### Some constants
 ###
-LATEX_GROUP = "LaTeX"
-LATEX_DOCUMENT = "LaTeX Document"
-OPENOFFICE_GROUP = "OpenOffice"
-WRITER_DOCUMENT = "OpenOffice Writer Document"
-CALC_DOCUMENT = "OpenOffice Calc Document"
-TEMPLATES_NASTAVITVE_GROUP = "Nastavitve"
-
-LATEX_SCRIPTS_GROUP = "LaTeX Scripts"
-SCRIPT_CREATION_GROUP = "Script Creation"
-NEST_GROUP = "Nest"
-PHD_SCRIPTS_GROUP = "PhD"
-
-PROFILE_INIT_FILE = ".my_profile_init"
-MY_BASHRC_SCRIPT = ".my_bashrc"
-
-
-
-###
-### Some specific machine names
-###
-TONCKA = 'toncka.urbas.si'
-TERRA = 'terra.urbas.si'
+NAUTILUS_SCRIPT_DIR=".gnome2/nautilus-scripts"
 
 
 
@@ -90,11 +49,7 @@ TERRA = 'terra.urbas.si'
 
 class HomeConfig(ConfigScript):
     def preRun(self):
-        if self.getMain().serviceMyMachines().isMachineOfType(MACHINE_TYPE_CL_OFFICE):
-            info("This machine is of type '" + MACHINE_TYPE_CL_OFFICE + "'. Setting the 'Nest' folder to a clone in the NFS mount.")
-            self.getMain().setDirNest([self.getMain().dirHome(), '.Nest'])
-            self.getMain().serviceNest().pullUpdate()
-            info("Updated the NFS 'Nest' clone.")
+        pass
 
     def postRun(self):
         pass
@@ -102,112 +57,160 @@ class HomeConfig(ConfigScript):
     def postFail(self, ex):
         pass
 
-
-
     def update1(self):
-        installTemplateAbs(self.getMain(), self.getLatexTemplates("LNCS Template/src/Main.tex"), LATEX_DOCUMENT + " (LNCS Style).tex", LATEX_GROUP)
-        installTemplateAbs(self.getMain(), join(self.getMain().dirDokumenti(), "Šablona.odt"), WRITER_DOCUMENT + " (my style).odt", OPENOFFICE_GROUP)
-        installTemplate(self.getMain(), "Empty OpenOffice Document.odt", WRITER_DOCUMENT + ".odt", OPENOFFICE_GROUP)
-        installTemplate(self.getMain(), "LaTeX Document (My Default).tex", LATEX_DOCUMENT + " (my default).tex", LATEX_GROUP)
-        installTemplateAbs(self.getMain(), self.getLatexTemplates("ARW Template/src/Main.tex"), LATEX_DOCUMENT + " (ARW style).tex", LATEX_GROUP)
+        # Install my custom `bashrc` script:
+        self.installBashRC()
+        
+        # Install some binary script:
+        info("Installing some Nest scripts...")
+        self.installBinScript('nup')
+        self.installBinScript('nci')
+        self.installBinScript('nst')
+        self.installBinScript('ndiff')
+        self.installBinScript('npush')
+        self.installBinScript('nclean')
+        self.installBinScript('nmerge')
+        self.installBinScript('homeupgrade')
+        self.installBinScript('machineconfigure')
+        self.installBinScript('temsedit', 'tedit')
+        self.installBinScript('callonemachineconffunc')
+        
+        # Configure GIT
+        createLink([self.getMain().dirHome(), 'Nest/Nastavitve/Git/Configuration/.gitconfig'], self.getMain().dirHome(), UTILS_CREATE_LINK_DELETE)
+        linkInSubfolders([self.getMain().dirHome(), 'Nest/Nastavitve/Mercurial/Nest Configuration/hgrc'], None, UTILS_CREATE_LINK_DELETE, [self.getMain().dirHome(), 'Nest'], '.hg')
 
-        installNautilusScript(self.getMain(), "Create My Include Script.sh", None, SCRIPT_CREATION_GROUP)
-        installNautilusScript(self.getMain(), "Create LaTeX Makefile.sh", None, LATEX_SCRIPTS_GROUP)
-        installNautilusScript(self.getMain(), "Create Nautilus Script.sh", None, SCRIPT_CREATION_GROUP)
-        installNautilusScript(self.getMain(), "Shred Selected Files.sh")
-        installNautilusScript(self.getMain(), "Compress, Archive and Encrypt.sh")
+#    def updateOld1(self):
+#        installTemplateAbs(self.getMain(), self.getLatexTemplates("LNCS Template/src/Main.tex"), LATEX_DOCUMENT + " (LNCS Style).tex", LATEX_GROUP)
+#        installTemplateAbs(self.getMain(), join(self.getMain().dirDokumenti(), "Šablona.odt"), WRITER_DOCUMENT + " (my style).odt", OPENOFFICE_GROUP)
+#        installTemplate(self.getMain(), "Empty OpenOffice Document.odt", WRITER_DOCUMENT + ".odt", OPENOFFICE_GROUP)
+#        installTemplate(self.getMain(), "LaTeX Document (My Default).tex", LATEX_DOCUMENT + " (my default).tex", LATEX_GROUP)
+#        installTemplateAbs(self.getMain(), self.getLatexTemplates("ARW Template/src/Main.tex"), LATEX_DOCUMENT + " (ARW style).tex", LATEX_GROUP)
+#
+#        installNautilusScript(self.getMain(), "Create My Include Script.sh", None, SCRIPT_CREATION_GROUP)
+#        installNautilusScript(self.getMain(), "Create LaTeX Makefile.sh", None, LATEX_SCRIPTS_GROUP)
+#        installNautilusScript(self.getMain(), "Create Nautilus Script.sh", None, SCRIPT_CREATION_GROUP)
+#        installNautilusScript(self.getMain(), "Shred Selected Files.sh")
+#        installNautilusScript(self.getMain(), "Compress, Archive and Encrypt.sh")
+#
+#        installBinScriptAbs(self.getMain(), [self.getGiCfg('MY_LATEX_DIR'), "CreateLatexDiff.sh"])
+#        installTemplate(self.getMain(), "LaTeX Presentation.tex", "Presentation (default).tex", LATEX_GROUP)
+#        installNautilusScript(self.getMain(), "Convert Link to Copy.sh", "Links to Copies")
+#        installNautilusScript(self.getMain(), "New Meeting Memo.sh", None, PHD_SCRIPTS_GROUP)
+#        installNautilusScript(self.getMain(), "New Action Points.sh", None, PHD_SCRIPTS_GROUP)
+#        installNautilusScript(self.getMain(), "Add & Open Empty File.sh")
+#
+#        myProfileInitFile = join(self.getMain().dirHome(), PROFILE_INIT_FILE)
+#        bashProfile = join(self.getMain().dirHome(), ".bash_profile")
+#        warning("Telling Bash to load the custom '" + myProfileInitFile + "' script on login. Please check the file '" + bashProfile + "' for duplicated invocations.")
+#        appendLinesToFile(bashProfile, "source '" + myProfileInitFile + "'")
+#        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), PROFILE_INIT_FILE], myProfileInitFile, UTILS_CREATE_LINK_DELETE)
+#
+#        installNautilusScript(self.getMain(), "Create LaTeX Diff Script.sh", None, LATEX_SCRIPTS_GROUP)
+#
+#        myBashrcScript = join(self.getMain().dirHome(), MY_BASHRC_SCRIPT)
+#        bashrc = join(self.getMain().dirHome(), ".bashrc")
+#        warning("Telling Bash to load the custom '" + myBashrcScript + "' script on login. Please check the file '" + bashrc + "' for duplicated invocations.")
+#        appendLinesToFile(bashrc, "source '" + myBashrcScript + "'")
+#        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), MY_BASHRC_SCRIPT], myBashrcScript, UTILS_CREATE_LINK_DELETE)
+#
+#        installBinScript(self.getMain(), 'CleanLatexEnvironment.sh')
+#        installNautilusScript(self.getMain(), "Create LaTeX Project.sh", None, LATEX_SCRIPTS_GROUP)
+#        linkInSubfolders([self.getGiCfg("VIDEO_FILES_DIR"), "libx264-nexushq.ffpreset"], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), '.ffmpeg')
+#        linkInSubfolders([self.getGiCfg("VIDEO_FILES_DIR"), "libx264-nexus.ffpreset"], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), '.ffmpeg')
+#        installBinScriptAbs(self.getMain(), [self.getGiCfg('VIDEO_FILES_DIR'), "ConvertForNexus.sh"])
+#        linkInSubfolders([self.getGiCfg("VIDEO_FILES_DIR"), "mencoder.conf"], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), '.mplayer')
+#        installTemplate(self.getMain(), "Empty OpenOffice Calc Document.ods", CALC_DOCUMENT + " (empty).ods", OPENOFFICE_GROUP)
+#        linkInSubfolders([self.getMain().dirNastavitve(), 'Mercurial/Client Configuration/.hgrc'], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome())
+#        installBinScript(self.getMain(), 'nup')
+#        installBinScript(self.getMain(), 'homeupgrade')
+#        installBinScript(self.getMain(), 'nci')
+#        installBinScript(self.getMain(), 'nst')
+#        installBinScript(self.getMain(), 'nadd')
+#        installBinScript(self.getMain(), 'ndiff')
+#        installBinScript(self.getMain(), 'temsedit', 'tedit')
+#        installBinScript(self.getMain(), 'temsgrep', 'tgrep')
+#        installBinScript(self.getMain(), 'nlog')
+#        installBinScript(self.getMain(), 'nless')
+#        installBinScript(self.getMain(), 'nmerge')
+#        installBinScript(self.getMain(), 'nrevert')
+#        installBinScript(self.getMain(), 'tview')
+#        installBinScript(self.getMain(), 'nclean')
+#        installNautilusScript(self.getMain(), "Create Bash Script.sh", None, SCRIPT_CREATION_GROUP)
+#        installBinScript(self.getMain(), 'kindlededrm')
+#        installBinScript(self.getMain(), 'machineconfigure')
+#        installNautilusScript(self.getMain(), "Create Bin Script.sh", None, SCRIPT_CREATION_GROUP)
+#        installNautilusScript(self.getMain(), "New Nastavitve Notes.sh", None, TEMPLATES_NASTAVITVE_GROUP)
+#        #linkDirTree([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'MetacityWorkspaces/.gconf/apps/metacity'], [self.getMain().dirHome(), '.gconf/apps'])
+#
+#    @updateAllBut(MACHINE_TYPE_MACO_SERVER)
+#    def updateOld2(self):
+#        linkInSubfolders([self.getMain().dirNastavitve(), 'Mercurial/Nest Configuration/hgrc'], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirNest(), '.hg')
+#
+#    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+#    def update3(self):
+#        linkInSubfolders([self.getGiCfg('MACO_DIR'), 'SSH Configuration/authorized_keys'], None, UTILS_CREATE_LINK_HARD_LINK, self.getMain().dirHome(), '.ssh')
+#        chmod(join(self.getMain().dirHome(), '.ssh/authorized_keys'), 0640)
+#
+#    def update4(self):
+#        #linkDirTree([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'Desktop/.gconf/apps/gnome_settings_daemon/keybindings'], [self.getMain().dirHome(), '.gconf/apps/gnome_settings_daemon'])
+#        installConfigDir(self.getMain(), '.gnome2/keyrings')
+#
+#    def update5(self):
+#        installNautilusScript(self.getMain(), 'Nest Rename.sh', 'Rename', NEST_GROUP)
+#
+#    @updateMachine(TONCKA)
+#    def update6(self):
+#        pass
+##        info("Configuring screen rotation shortcuts for Toncka.")
+##        installBinScriptAbs(self.getMain(), [self.getMain().dirNastavitve(), 'Toncka', 'RotateScreen.sh'])
+##        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom0'], getNextCustomDir(self.getMain()))
+##        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom1'], getNextCustomDir(self.getMain()))
+##        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom2'], getNextCustomDir(self.getMain()))
+##        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom3'], getNextCustomDir(self.getMain()))
+#
+#    def update7(self):
+#        createLink([self.getGiCfg('MY_GIT_CONFIG_DIR'), '.gitconfig'], self.getMain().dirHome(), UTILS_CREATE_LINK_DELETE)
+#
+#    def update10(self):
+#        installNautilusScript(self.getMain(), "Markdown.sh")
+#
+#    ###
+#    ### Helper Functions
+#    ###
+#
+#    def getLatexTemplates(self, template):
+#        return join(self.getMain().dirResearch(), "Various/Latex Playground", template)
 
-        installBinScriptAbs(self.getMain(), [self.getGiCfg('MY_LATEX_DIR'), "CreateLatexDiff.sh"])
-        installTemplate(self.getMain(), "LaTeX Presentation.tex", "Presentation (default).tex", LATEX_GROUP)
-        installNautilusScript(self.getMain(), "Convert Link to Copy.sh", "Links to Copies")
-        installNautilusScript(self.getMain(), "New Meeting Memo.sh", None, PHD_SCRIPTS_GROUP)
-        installNautilusScript(self.getMain(), "New Action Points.sh", None, PHD_SCRIPTS_GROUP)
-        installNautilusScript(self.getMain(), "Add & Open Empty File.sh")
 
-        myProfileInitFile = join(self.getMain().dirHome(), PROFILE_INIT_FILE)
-        bashProfile = join(self.getMain().dirHome(), ".bash_profile")
-        warning("Telling Bash to load the custom '" + myProfileInitFile + "' script on login. Please check the file '" + bashProfile + "' for duplicated invocations.")
-        appendLinesToFile(bashProfile, "source '" + myProfileInitFile + "'")
-        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), PROFILE_INIT_FILE], myProfileInitFile, UTILS_CREATE_LINK_DELETE)
 
-        installNautilusScript(self.getMain(), "Create LaTeX Diff Script.sh", None, LATEX_SCRIPTS_GROUP)
+    ##
+    ## Configuration helper methods
+    ##
+    def installBashRC(self):
+        myBashrcFilename = self.getGiCfg('MY_BASHRC_FILENAME')
+        info("Installing the custom `" + myBashrcFilename + "` script...")
+        myBashrcScript = os.path.join(self.getMain().dirHome(), myBashrcFilename)
+        bashrc = os.path.join(self.getMain().dirHome(), ".bashrc")
+        # Check that the `bashrc` script doesn't already contain the `include`:
+        includeCommand = "source '" + myBashrcScript + "'";
+        contains = any([line.lstrip().startswith(includeCommand) for line in open(bashrc)])
+        if not contains:
+            info("Does not contain command. Inserting...")
+            appendLinesToFile(bashrc, [
+               "",
+               "# Run my custom environment initialisation script:",
+               includeCommand]
+            )
+            warning("Telling Bash to load the custom '" + myBashrcScript + "' script on login. Please check the file '" + bashrc + "' for duplicated invocations.")
+        createLink([self.getGiCfg('MY_BASHRC_DIR'), myBashrcFilename], myBashrcScript, UTILS_CREATE_LINK_DELETE)
 
-        myBashrcScript = join(self.getMain().dirHome(), MY_BASHRC_SCRIPT)
-        bashrc = join(self.getMain().dirHome(), ".bashrc")
-        warning("Telling Bash to load the custom '" + myBashrcScript + "' script on login. Please check the file '" + bashrc + "' for duplicated invocations.")
-        appendLinesToFile(bashrc, "source '" + myBashrcScript + "'")
-        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), MY_BASHRC_SCRIPT], myBashrcScript, UTILS_CREATE_LINK_DELETE)
-
-        installBinScript(self.getMain(), 'CleanLatexEnvironment.sh')
-        installNautilusScript(self.getMain(), "Create LaTeX Project.sh", None, LATEX_SCRIPTS_GROUP)
-        linkInSubfolders([self.getGiCfg("VIDEO_FILES_DIR"), "libx264-nexushq.ffpreset"], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), '.ffmpeg')
-        linkInSubfolders([self.getGiCfg("VIDEO_FILES_DIR"), "libx264-nexus.ffpreset"], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), '.ffmpeg')
-        installBinScriptAbs(self.getMain(), [self.getGiCfg('VIDEO_FILES_DIR'), "ConvertForNexus.sh"])
-        linkInSubfolders([self.getGiCfg("VIDEO_FILES_DIR"), "mencoder.conf"], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), '.mplayer')
-        installTemplate(self.getMain(), "Empty OpenOffice Calc Document.ods", CALC_DOCUMENT + " (empty).ods", OPENOFFICE_GROUP)
-        linkInSubfolders([self.getMain().dirNastavitve(), 'Mercurial/Client Configuration/.hgrc'], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirHome())
-        installBinScript(self.getMain(), 'nup')
-        installBinScript(self.getMain(), 'homeupgrade')
-        installBinScript(self.getMain(), 'nci')
-        installBinScript(self.getMain(), 'nst')
-        installBinScript(self.getMain(), 'nadd')
-        installBinScript(self.getMain(), 'ndiff')
-        installBinScript(self.getMain(), 'temsedit', 'tedit')
-        installBinScript(self.getMain(), 'temsgrep', 'tgrep')
-        installBinScript(self.getMain(), 'nlog')
-        installBinScript(self.getMain(), 'nless')
-        installBinScript(self.getMain(), 'nmerge')
-        installBinScript(self.getMain(), 'nrevert')
-        installBinScript(self.getMain(), 'tview')
-        installBinScript(self.getMain(), 'nclean')
-        installNautilusScript(self.getMain(), "Create Bash Script.sh", None, SCRIPT_CREATION_GROUP)
-        installBinScript(self.getMain(), 'kindlededrm')
-        installBinScript(self.getMain(), 'machineconfigure')
-        installNautilusScript(self.getMain(), "Create Bin Script.sh", None, SCRIPT_CREATION_GROUP)
-        installNautilusScript(self.getMain(), "New Nastavitve Notes.sh", None, TEMPLATES_NASTAVITVE_GROUP)
-        #linkDirTree([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'MetacityWorkspaces/.gconf/apps/metacity'], [self.getMain().dirHome(), '.gconf/apps'])
-
-    @updateAllBut(MACHINE_TYPE_MACO_SERVER)
-    def update2(self):
-        linkInSubfolders([self.getMain().dirNastavitve(), 'Mercurial/Nest Configuration/hgrc'], None, UTILS_CREATE_LINK_DELETE, self.getMain().dirNest(), '.hg')
-
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
-    def update3(self):
-        linkInSubfolders([self.getGiCfg('MACO_DIR'), 'SSH Configuration/authorized_keys'], None, UTILS_CREATE_LINK_HARD_LINK, self.getMain().dirHome(), '.ssh')
-        chmod(join(self.getMain().dirHome(), '.ssh/authorized_keys'), 0640)
-
-    def update4(self):
-        #linkDirTree([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'Desktop/.gconf/apps/gnome_settings_daemon/keybindings'], [self.getMain().dirHome(), '.gconf/apps/gnome_settings_daemon'])
-        installConfigDir(self.getMain(), '.gnome2/keyrings')
-
-    def update5(self):
-        installNautilusScript(self.getMain(), 'Nest Rename.sh', 'Rename', NEST_GROUP)
-
-    @updateMachine(TONCKA)
-    def update6(self):
-        pass
-#        info("Configuring screen rotation shortcuts for Toncka.")
-#        installBinScriptAbs(self.getMain(), [self.getMain().dirNastavitve(), 'Toncka', 'RotateScreen.sh'])
-#        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom0'], getNextCustomDir(self.getMain()))
-#        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom1'], getNextCustomDir(self.getMain()))
-#        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom2'], getNextCustomDir(self.getMain()))
-#        createLink([self.getMain().dirNastavitve(), 'Toncka', 'custom3'], getNextCustomDir(self.getMain()))
-
-    def update7(self):
-        createLink([self.getGiCfg('MY_GIT_CONFIG_DIR'), '.gitconfig'], self.getMain().dirHome(), UTILS_CREATE_LINK_DELETE)
-
-    def update8(self):
-        installBinScript(self.getMain(), 'npush')
-
-    def update9(self):
-        installBinScript(self.getMain(), 'callonemachineconffunc')
-
-    def update10(self):
-        installNautilusScript(self.getMain(), "Markdown.sh")
-
-    ###
-    ### Helper Functions
-    ###
-
-    def getLatexTemplates(self, template):
-        return join(self.getMain().dirResearch(), "Various/Latex Playground", template)
+    def installNautilusScript(self, fileName, scriptName = None, *scriptGroups):
+        fileName = joinPaths([self.getMain().getGiCfg('MY_NAUTILUS_SCRIPTS_DIR'), fileName])
+        linkInSubfolders(fileName, scriptName or os.path.splitext(os.path.basename(fileName))[0], UTILS_CREATE_LINK_DELETE, self.getMain().dirHome(), NAUTILUS_SCRIPT_DIR, scriptGroups)
+    
+    def installBinScript(self, fileName, targetName = None, mode = UTILS_CREATE_LINK_DELETE):
+        self.installBinScriptAbs(joinPaths([self.getMain().getGiCfg('MY_BASH_LOCAL_BIN_DIR'), fileName]), targetName, mode)
+    
+    def installBinScriptAbs(self, fileName, targetName = None, mode = UTILS_CREATE_LINK_DELETE):
+        fileName = joinPaths(fileName)
+        linkInSubfolders(fileName, targetName or os.path.basename(fileName), mode, self.getMain().dirHome(), "bin")
