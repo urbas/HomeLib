@@ -38,3 +38,10 @@ parser.add_argument('-l', '--listScripts',
     action='store_true',
     help='List the configuration scripts provided in the `homelib.config` configuration file and exit.'
 )
+
+parser.add_argument('-c', '--config-file',
+    type=str,
+    nargs=1,
+    metavar='config_file',
+    help='The path to the configuration file to be used when initialising HomeLib, e.g. `-c ~/.homelib/homelib.config`.'
+)

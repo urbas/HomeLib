@@ -125,12 +125,12 @@ class MachineConfig(ConfigScript):
                 getReferencerDevelopmentDependencies()
             )
 
-    @updateOnly(MACHINE_TYPE_LAPTOP)
+    @updateOnly('laptop')
     def update2(self):
         createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'laptop/etc/selinux/config'], '/etc/selinux')
         info("Disabled SELinux (restart required).")
 
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+    @updateOnly('maco_server')
     def update3(self):
         configurePgSql(self)
         setupNetworking(self)
@@ -173,7 +173,7 @@ class MachineConfig(ConfigScript):
         createUsers(self)
         setupMacoPolicy(self)
 
-    @updateOnly(MACHINE_TYPE_LAPTOP, MACHINE_TYPE_CL_OFFICE)
+    @updateOnly('laptop', 'cl_office')
     def update4(self):
         self.getMain().serviceSoftware().install(
                 "emacs"
@@ -223,7 +223,7 @@ class MachineConfig(ConfigScript):
 
     # This update configures WebDAV (for the calendar): It also updates the
     # SELinux policies.
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+    @updateOnly('maco_server')
     def update7(self):
         setupWebDAVCalendar(self)
 
@@ -236,12 +236,12 @@ class MachineConfig(ConfigScript):
             )
 
     # Installs the weekly cron job for archiving the select Git repositories.
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+    @updateOnly('maco_server')
     def update9(self):
         setupGit(self)
 
     # Installs the daily cron job that backs up my calendars
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+    @updateOnly('maco_server')
     def update10(self):
         setupCalendarBackup(self)
 
@@ -250,24 +250,24 @@ class MachineConfig(ConfigScript):
         setupServices1Common(self)
 
     # Enables services needed by maco
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+    @updateOnly('maco_server')
     def update12(self):
         setupServices2Maco(self)
 
     # Disables all services not required for laptops
-    @updateOnly(MACHINE_TYPE_LAPTOP)
+    @updateOnly('laptop')
     def update13(self):
         setupServices3Laptop(self)
 
     # Enables SSHD and assigns a static IP the home desktop computer (old maco).
-    @updateOnly(MACHINE_TYPE_HOME_DESKTOP)
+    @updateOnly('home_desktop')
     def update14(self):
         setupDesktopNetworking(self)
         setupServices4Desktop(self)
 
     # Installs the mono-nat library for automatic configuration of port forwarding on the local router.
     # This failed. I did not manage to set the automatic port forwarding up.
-    @updateOnly(MACHINE_TYPE_MACO_SERVER)
+    @updateOnly('maco_server')
     def update15(self):
         #self.getMain().serviceSoftware().install(
         #        'mono-nat'
@@ -284,10 +284,10 @@ class MachineConfig(ConfigScript):
         return self.getMain().serviceMyMachines().isMachineOfType(types)
 
     def macoSpecificStuff(self):
-        if not self.getMain().serviceMyMachines().isMachineOfType(MACHINE_TYPE_MACO_SERVER):
+        if not self.getMain().serviceMyMachines().isMachineOfType('maco_server'):
             return
         if not checkMaco():
-            raise Exception("This machine identifies itself as a '" + MACHINE_TYPE_MACO_SERVER + "'. However, it does not satisfy the above conditions.")
+            raise Exception("This machine identifies itself as a '" + 'maco_server' + "'. However, it does not satisfy the above conditions.")
 
     def cloneUpdateEtcNest(self):
         # Okay, we'll clone a copy of Nest into '/etc/Nest' -- to be able to
@@ -296,7 +296,7 @@ class MachineConfig(ConfigScript):
         # @type nestService Nest
         nestService = self.getMain().serviceNest()
         if not isdir(nestPath) or not isdir(join(nestPath, '.hg')):
-            nestService.cloneUri(nestService.getCentralRepoPath() if self.isMachineOfType(MACHINE_TYPE_MACO_SERVER) else None, nestPath)
+            nestService.cloneUri(nestService.getCentralRepoPath() if self.isMachineOfType('maco_server') else None, nestPath)
             info("Cloned 'Nest' to '" + nestPath + "'.")
         # Now set the Nest folder to the above cloned one.
         self.getMain().setDirNest(nestPath)

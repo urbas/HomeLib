@@ -33,6 +33,7 @@ from os import getenv
 
 from homelib.service import Service
 from homelib.utils import flatten
+import socket
 
 
 
@@ -44,25 +45,9 @@ from homelib.utils import flatten
 The section in the HomeLib's configuration file that contain information about
 all my machines.
 """
-CFG_SEC_MY_MACHINES="My Machines"
+CFG_SEC_MY_MACHINES='My Machines'
 
-MACHINE_TYPE_MACO_SERVER='maco_server'
-MACHINE_TYPE_LAPTOP='laptop'
-MACHINE_TYPE_CL_OFFICE='cl_office'
-MACHINE_TYPE_HOME_DESKTOP='home_desktop'
-
-"""
-This dictionary contains all known computer types. Home and machine
-configuration upgrade scripts depend on this info and perform different
-configuration upgrades depending on this type.
-"""
-MACHINE_TYPES={
-    MACHINE_TYPE_LAPTOP         : "A personal laptop computer.",
-    MACHINE_TYPE_MACO_SERVER    : "The computer which hosts many of my services (including VCS, web, e-mail, dns etc.).",
-    MACHINE_TYPE_CL_OFFICE      : "My office computer in the Computer Laboratory.",
-    MACHINE_TYPE_HOME_DESKTOP   : "The desktop computer residing at home (in the same local network as Maco)."
-}
-
+CFG_PREFIX_TYPE_DESCRIPTION='type_description.'
 
 
 ###
@@ -76,15 +61,17 @@ class MyMachines(Service):
     def __init__(self, main=None):
         Service.__init__(self, main)
         # Get all the known machines from the configuration file
-        # __mymachines is a dictionary of objects with the following attributes:
-        #   [0] -   the hostname of the machine
-        #   [1] -   the human-readable description of the machine
-        #   [2] -   a set of mechine types to which this machine belongs
+        # __mymachines is a dictionary:
+        #   key   - the hostname of the machine
+        #   value - lists with the following elements:
+        #       [0] -   the hostname of the machine
+        #       [1] -   the human-readable description of the machine
+        #       [2] -   a set of mechine types to which this machine belongs
         self.__mymachines = {}
         main = self.getMain()
         i = 0
         while True:
-            curmachine = main.getCfgs(CFG_SEC_MY_MACHINES, [i.__str__() + "." + str for str in [ "hostname", "description", "type" ]])
+            curmachine = main.getCfgs(CFG_SEC_MY_MACHINES, [i.__str__() + "." + attributeName for attributeName in [ "hostname", "description", "type" ]])
             if not curmachine[0]:
                 break;
             if self.__mymachines.has_key(curmachine[0]):
@@ -92,8 +79,6 @@ class MyMachines(Service):
             # A machine can be of multiple types. The 'type' field is a
             # comma-separated list of strings. We will put it into a dictionary.
             curmachine[2] = set([x for x in curmachine[2].split(',')])
-            if not curmachine[2].issubset(MACHINE_TYPES.viewkeys()):
-                raise Exception("The machine '" + curmachine[0] + "' is of unknown type.")
             self.__mymachines[curmachine[0]] = curmachine
             i = i + 1
 
@@ -103,7 +88,7 @@ class MyMachines(Service):
         """
         @returns    The name of the current machine (e.g., 'terra.urbas.si').
         """
-        return getenv("HOSTNAME")
+        return socket.gethostname()
 
 
 

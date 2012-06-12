@@ -3,6 +3,8 @@ from homelib.utils import getHomePath, getHomeLibFile, cfgGetOrDefault
 from os.path import join
 import os
 import sys
+import logging
+import traceback
 
 
 
@@ -117,15 +119,17 @@ class Main(object):
         # configuration file could not be loaded.
         
         # First we build a list of paths where we will search for the
-        # configuration file. 
-        loadDirs = [p
-                    for p in
-                    [configFile,
-                     join(homeDir, HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE) if homeDir else None,
-                     join(getHomePath(), HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
-                     join("/etc", HOMELIB_ETC_CONFIG_DIR, HOMELIB_CONFIG_FILE),
-                     getHomeLibFile(HOMELIB_CONFIG_FILE)]
-                    if p]
+        # configuration file.
+        if configFile is None: 
+            loadDirs = [p for p in [
+                            join(homeDir, HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE) if homeDir else None,
+                            join(getHomePath(), HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
+                            join("/etc", HOMELIB_ETC_CONFIG_DIR, HOMELIB_CONFIG_FILE),
+                            getHomeLibFile(HOMELIB_CONFIG_FILE)
+                            ]
+                        if p]
+        else:
+            loadDirs = [configFile]
         
         self.__config = SafeConfigParser()
         
@@ -327,31 +331,67 @@ class Main(object):
 ###
 ### Main entry point:
 ###
-def main():
+
+def init(arguments):
+    """
+    Creates and initialises a HomeLib instance with the given command-line arguments.
+    For more information run HomeLib with the `-h` option.
     
+    @param arguments    the command-line arguments to use when initialising HomeLib.
+    
+    @returns    a pair (main, args) where:
+    
+                    main - an initialised main instance,
+                    args - parsed arguments/
+    
+    @throws Exception    if a HomeLib instance could not have been created or initialised. 
+    """
     # Parse the user's arguments:
     import mainargs
-    args = mainargs.parser.parse_args()
+    args = mainargs.parser.parse_args(arguments)
     
-    main = Main()
-    cfgService = main.serviceConfig()
-    
-    # Shall we just print the available machine configuration scripts?
-    if args.listScripts:
-        print "The list of configuration scripts:"
-        for script in cfgService.getCfgScriptsNames():
-            print "  - " + script + " :: " + cfgService.getCfgScriptDetails(script)[4] + " :: " + str(cfgService.getCfgScriptDetails(script))
-        return 0
-    # Shall we run a specific configuration script?
-    elif args.scriptName is None:
-        # Run all configuration scripts:
-        for script in cfgService.getCfgScriptsNames():
-            cfgService.runScript(script)
-    # Okay, run everything (update the whole computer):
+    if args.config_file is None:
+        main = Main()
     else:
-        # Run the selected configuration script:
-        cfgService.runScript(args.scriptName, args.start[0] if args.start else None, args.end[0] if args.end else None)
-    return 0
+        print args.config_file[0]
+        main = Main(configFile=args.config_file[0])
+    
+    return (main, args)
+
+
+def main(arguments):
+    """
+    Runs HomeLib configuration scripts. The location of the scripts is specified in
+    the configuration file. For more information run HomeLib with the `-h` option.
+    
+    @param arguments    the command-line arguments to use when initialising HomeLib.
+    
+    @returns    0 on success, otherwise it returns 1.
+    """
+    
+    try:
+        (main, args) = init(arguments)
+        cfgService = main.serviceConfig()
+        
+        # Shall we just print the available machine configuration scripts?
+        if args.listScripts:
+            print "The list of configuration scripts:"
+            for script in cfgService.getCfgScriptsNames():
+                print "  - " + script + " :: " + cfgService.getCfgScriptDetails(script)[4] + " :: " + str(cfgService.getCfgScriptDetails(script))
+            return 0
+        # Shall we run a specific configuration script?
+        elif args.scriptName is None:
+            # Run all configuration scripts:
+            for script in cfgService.getCfgScriptsNames():
+                cfgService.runScript(script)
+        # Okay, run everything (update the whole computer):
+        else:
+            # Run the selected configuration script:
+            cfgService.runScript(args.scriptName, args.start[0] if args.start else None, args.end[0] if args.end else None)
+        return 0
+    except Exception as ex:
+        logging.error("The configuration script did not execute correctly. The following exception occurred: `" + str(ex) + "`\n\nStack trace: " + traceback.format_exc())
+        return 1;
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

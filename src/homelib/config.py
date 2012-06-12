@@ -303,11 +303,9 @@ class Config(Service):
 
         @throws If for any reason the script failed or did not start at all.
         """
-        inst = None;
+        # Load the script (an exception will be thrown if the loading fails -- so, never will we get None from it).
+        (inst, curVersionInfo, details) = self.loadScript(cfgScriptName);
         try:
-            # Load the script (an exception will be thrown if the loading fails -- so, never will we get None from it).
-            (inst, curVersionInfo, details) = self.loadScript(cfgScriptName);
-
             # Create the logger this script should use
             (lh, fd) = addLoggerHandler(type(inst), details[3])
             _sepMsg("Starting the configuration script '" + cfgScriptName + "'")

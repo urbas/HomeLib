@@ -78,6 +78,10 @@ class HomeConfig(ConfigScript):
         # Configure GIT
         createLink([self.getMain().dirHome(), 'Nest/Nastavitve/Git/Configuration/.gitconfig'], self.getMain().dirHome(), UTILS_CREATE_LINK_DELETE)
         linkInSubfolders([self.getMain().dirHome(), 'Nest/Nastavitve/Mercurial/Nest Configuration/hgrc'], None, UTILS_CREATE_LINK_DELETE, [self.getMain().dirHome(), 'Nest'], '.hg')
+        
+    def update2(self):
+        # Install `authorized_keys` for the SSH server:
+        createLink([self.getMain().dirHome(), 'Nest/Nastavitve/SSH/authorized_keys'], [self.getMain().dirHome(), '.ssh/authorized_keys'], UTILS_CREATE_LINK_DELETE, 0640)
 
 #    def updateOld1(self):
 #        installTemplateAbs(self.getMain(), self.getLatexTemplates("LNCS Template/src/Main.tex"), LATEX_DOCUMENT + " (LNCS Style).tex", LATEX_GROUP)
