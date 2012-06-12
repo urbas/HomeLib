@@ -54,7 +54,7 @@ from maco.services import *
 
 class MachineConfig(ConfigScript):
     def preRun(self):
-        self.cloneUpdateEtcNest()
+#        self.cloneUpdateEtcNest()
         self.macoSpecificStuff()
 
     def postRun(self):
@@ -65,6 +65,7 @@ class MachineConfig(ConfigScript):
 
 
 
+    @updateOnly('maco_server')
     def update1(self):
         self.getMain().serviceSoftware().addRepository('http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm')
         self.getMain().serviceSoftware().install(
@@ -127,8 +128,9 @@ class MachineConfig(ConfigScript):
 
     @updateOnly('laptop')
     def update2(self):
-        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'laptop/etc/selinux/config'], '/etc/selinux')
-        info("Disabled SELinux (restart required).")
+#        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'laptop/etc/selinux/config'], '/etc/selinux')
+#        info("Disabled SELinux (restart required).")
+        pass
 
     @updateOnly('maco_server')
     def update3(self):
@@ -175,10 +177,12 @@ class MachineConfig(ConfigScript):
 
     @updateOnly('laptop', 'cl_office')
     def update4(self):
-        self.getMain().serviceSoftware().install(
-                "emacs"
-            )
+#        self.getMain().serviceSoftware().install(
+#                "emacs"
+#            )
+        pass
 
+    @updateOnly('maco_server')
     def update5(self):
         self.getMain().serviceSoftware().addRepository('http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm')
         self.getMain().serviceSoftware().install(
@@ -204,6 +208,7 @@ class MachineConfig(ConfigScript):
             )
 
     # This update install software needed for building Isabelle.
+    @updateOnly('maco_server')
     def update6(self):
 #        self.getMain().serviceSoftware().install(
 #                'polyml',
@@ -228,6 +233,7 @@ class MachineConfig(ConfigScript):
         setupWebDAVCalendar(self)
 
     # Installs Thunderbird. 
+    @updateOnly('maco_server')
     def update8(self):
         self.getMain().serviceSoftware().install(
                 "thunderbird",
@@ -246,6 +252,7 @@ class MachineConfig(ConfigScript):
         setupCalendarBackup(self)
 
     # Disables all the unnecessary services and enables some on all types of computers
+    @updateOnly('maco_server')
     def update11(self):
         setupServices1Common(self)
 
@@ -257,13 +264,15 @@ class MachineConfig(ConfigScript):
     # Disables all services not required for laptops
     @updateOnly('laptop')
     def update13(self):
-        setupServices3Laptop(self)
+#        setupServices3Laptop(self)
+        pass
 
     # Enables SSHD and assigns a static IP the home desktop computer (old maco).
     @updateOnly('home_desktop')
     def update14(self):
-        setupDesktopNetworking(self)
-        setupServices4Desktop(self)
+#        setupDesktopNetworking(self)
+#        setupServices4Desktop(self)
+        pass
 
     # Installs the mono-nat library for automatic configuration of port forwarding on the local router.
     # This failed. I did not manage to set the automatic port forwarding up.
