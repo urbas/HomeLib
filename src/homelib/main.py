@@ -120,7 +120,7 @@ class Main(object):
         
         # First we build a list of paths where we will search for the
         # configuration file.
-        if configFile is None: 
+        if configFile is None:
             loadDirs = [p for p in [
                             join(homeDir, HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE) if homeDir else None,
                             join(getHomePath(), HOMELIB_CONFIG_DIR, HOMELIB_CONFIG_FILE),
@@ -353,7 +353,6 @@ def init(arguments):
     if args.config_file is None:
         main = Main()
     else:
-        print args.config_file[0]
         main = Main(configFile=args.config_file[0])
     
     return (main, args)

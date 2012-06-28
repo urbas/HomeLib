@@ -39,7 +39,7 @@ class Service(object):
                         will extract all its relevant data).
         """
         from homelib.main import Main
-        self.__main = main if isinstance(main, Main) else Main()
+        self.__main = Main() if main is None else main
 
 
 

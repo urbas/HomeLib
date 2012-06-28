@@ -956,7 +956,7 @@ logging.basicConfig(
                     stream=sys.__stdout__,
                     format=DEFAULT_LOGGING_FORMAT,
                     datefmt=DEFAULT_LOGGING_DATE_FORMAT
-                    )
+                   )
 
 def getClassLogger(cls, baseDir=None, level=logging.DEBUG, msgFormat=DEFAULT_LOGGING_FORMAT, dateFormat=DEFAULT_LOGGING_DATE_FORMAT):
     """
