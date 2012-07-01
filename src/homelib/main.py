@@ -145,6 +145,7 @@ class Main(object):
         self.__myMachinesService = None
         self.__configService = None
         self.__softwareService = None
+        self.__servicesService = None
         ###
         ### Logging
         ###
@@ -194,6 +195,18 @@ class Main(object):
             from homelib.config import Config
             self.__configService = Config(self)
         return self.__configService
+    
+
+    
+    def serviceServices(self):
+        """
+        @returns    The 'Services' service, which provides machine services
+                    management (enabling/disabling running services on this machine).
+        """
+        if not self.__servicesService:
+            from homelib.services import Services
+            self.__servicesService = Services.loadChosenImpl(self)
+        return self.__servicesService
 
 
 
