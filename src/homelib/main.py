@@ -1,3 +1,5 @@
+#!/bin/python
+
 from ConfigParser import SafeConfigParser
 from homelib.utils import getHomePath, getHomeLibFile, cfgGetOrDefault
 from os.path import join
