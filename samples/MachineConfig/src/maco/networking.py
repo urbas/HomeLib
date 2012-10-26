@@ -133,6 +133,7 @@ def setupBind(cfgScript):
     restorecon(join(ETC_DIR, 'named.conf'))
     createLink([dirBindConf(cfgScript), '90.157.141.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
     createLink([dirBindConf(cfgScript), 'urbas.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
+    createLink([dirBindConf(cfgScript), 'stanujem.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
     createLink([dirBindConf(cfgScript), 'banda.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
     createLink([dirBindSlaves(cfgScript), 'vcsweb.com.db'], NAMED_SLAVES_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'named', 'named')
     restoreconR(NAMED_SLAVES_DIR)
