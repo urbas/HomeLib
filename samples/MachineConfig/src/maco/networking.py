@@ -102,10 +102,10 @@ def setupCalendarBackup(cfgScript):
 
 
 def installHttpdCerts(cfgScript):
-    createLink([dirCertifikatiStartSsl(cfgScript), 'httpd.urbas.si.20120123.cert.pem'], [CERTS_DIR, 'httpd.urbas.si.cert.pem'], UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
+    createLink([dirCertifikatiStartSsl(cfgScript), 'urbas.si.20130108.cert.pem'], [CERTS_DIR, 'httpd.urbas.si.cert.pem'], UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
     createLink([dirCertifikatiStartSsl(cfgScript), 'sub.class1.server.ca.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0440, 'root', 'root')
     restoreconR(CERTS_DIR)
-    installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'httpd.urbas.si.20120123.key.pem'], 'httpd.urbas.si.key.pem')
+    installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'urbas.si.20130108.key.pem'], 'httpd.urbas.si.key.pem')
     info('Installed the HTTPD SSL certificates and keys.')
 
 
