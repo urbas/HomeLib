@@ -4,12 +4,12 @@
 # 
 #       A library for configuration and management of a personal environment.
 # 
-# File name: yum.py
+# File name: systemd.py
 # 
 #    Author: Matej Urbas [matej.urbas@gmail.com]
-#   Created: 27-Sep-2010, 18:58:10
+#   Created: 01-Jun-2012, 10:37:00
 # 
-#  Copyright © 2010 Matej Urbas
+#  Copyright © 2012 Matej Urbas
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,40 +29,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from homelib.utils import flatten
-from homelib.software import Software
+from homelib.services import Services
 from homelib.utils import runCmd
 from logging import info
 
+SERVICE_MANAGER="systemctl"
 
-
-PACKAGE_MANAGER="yum"
-
-
-
-
-###
-### The RPM/Yum implementation of the HomeLib software service
-###
-
-class SoftwareYum(Software):
-    """
-    The RPM/Yum implementation of the HomeLib software service.
-    """
+class SystemDServices(Services):
+    '''
+    The SystemD services management implementation of the HomeLib services
+    service.
+    '''
     def __init__(self, main=None):
-        Software.__init__(self, main)
+        Services.__init__(self, main)
 
-    def install(self, *packages):
-        if packages:
-            packages = flatten(packages)
-            if runCmd(PACKAGE_MANAGER, "-y", "install", packages):
-                raise Exception("Installation process failed.")
-            info("Installed packages: " + ", ".join(packages))
-#            yb = yum.YumBase()
-#            for package in packages:
-#                yb.install(name=package)
-#            yb.resolveDeps()
-#            yb.processTransaction()
+    def disableServices(self, services, levels = None):
+        for service in services:
+            self.configureService(service, 'off')
 
-    def addRepository(self, uri):
-        runCmd(PACKAGE_MANAGER, '-y', '-v', 'localinstall', '--nogpgcheck', uri)
+    def enableServices(self, services, levels = None):
+        for service in services:
+            self.configureService(service, 'on')
+
+    def configureService(self, service, newStatus='on', levels = None):
+        turnOff = (newStatus == 'off')
+        #levels = filter(lambda x: x in '0123456', levels) if levels else None
+        if runCmd(SERVICE_MANAGER, 'disable' if turnOff else 'enable', service + '.service'):
+            info("Could not " + ('disable' if turnOff else 'enable') + " service: " + service + ".")
+        else:
+            info(('Disabled' if turnOff else 'Enabled') + " service '" + service + "'.")

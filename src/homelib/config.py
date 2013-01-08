@@ -607,6 +607,25 @@ def updateAllBut(*types):
 
 
 
+def updateIf(condition):
+    """
+    This decorator executes the update script if the method `condition` returns
+    `true`. Otherwise it throws the UpdateNotAppliedException
+    exception.
+
+    @param  condition   A method of the following signature: `homelib.MyMachines -> bool`
+    """
+    def toUpdate(meth):
+        def toUpdateImpl(self):
+            if condition(self.getMain().serviceMyMachines()):
+                meth(self)
+            else:
+                raise UpdateNotAppliedException('Update not applicable for this machine.')
+        return toUpdateImpl
+    return toUpdate
+
+
+
 def updateMachine(*machineNames):
     """
     This decorator executes the update script only for machines with a specific

@@ -63,226 +63,229 @@ class MachineConfig(ConfigScript):
     def postFail(self, ex):
         pass
 
-
-
-    @updateOnly('maco_server')
+    @updateIf(lambda machines: machines.isMachineOfType('laptop') and machines.isMachineOfType('fedora'))
     def update1(self):
-        self.getMain().serviceSoftware().addRepository('http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm')
-        self.getMain().serviceSoftware().install(
-                "mercurial",
-                "yumex",
-                "subversion",
-                "libreoffice-calc",
-                "libreoffice-base",
-                "libreoffice-writer",
-                "libreoffice-langpack-sl",
-                "libreoffice-langpack-ja",
-                "libreoffice-langpack-en",
-                "libreoffice-langpack-de",
-                "libreoffice-pdfimport",
-#                "referencer", # Does not exist in F16 anymore
-                "eclipse-texlipse",
-                "meld",
-                "powertop",
-                "gimp",
-                "nano",
-                "xournal",
-                "pidgin",
-                "doxygen",
-                "doxygen-doxywizard",
-                "pidgin",
-                "system-config-services",
-                "zenity",
-                "ffmpeg",
-                "gstreamer-ffmpeg",
-                "gstreamer-plugins-bad",
-                "gstreamer-plugins-ugly",
-                "mplayer",
-                "vlc",
-                "k3b",
-                "k3b-extras-freeworld",
-                "libmpg123",
-                "sil-andika-fonts",
-                "sil-charis-compact-fonts",
-                "sil-charis-fonts",
-                "sil-doulos-fonts",
-                "sil-gentium-alt-fonts",
-                "sil-gentium-basic-book-fonts",
-                "sil-gentium-basic-fonts",
-                "sil-gentium-basic-fonts-common",
-                "sil-gentium-fonts",
-                "sil-gentium-fonts-common",
-                "sil-lateef-fonts",
-                "sil-scheherazade-fonts",
-                "tigervnc",
-                'nautilus-open-terminal',
-                'vim-enhanced',
-                'java-1.6.0-openjdk-plugin',
-                'libtool',
-                'autoconf',
-                'automake',
-                'intltool',
-                'gcc-c++',
-                getReferencerDevelopmentDependencies()
-            )
+        self.getMain().serviceServices().disableServices([
+            'abrt-ccpp',
+            'abrt-oops',
+            'abrt-vmcore',
+            'mdmonitor-takeover',
+            'sendmail'
+        ])
 
-    @updateOnly('laptop')
-    def update2(self):
-#        createLink([self.getGiCfg('MY_FEDORA_CONFIG_DIR'), 'laptop/etc/selinux/config'], '/etc/selinux')
-#        info("Disabled SELinux (restart required).")
-        pass
 
-    @updateOnly('maco_server')
-    def update3(self):
-        configurePgSql(self)
-        setupNetworking(self)
-        configureNest(self)
-        setupPrinting(self)
-        setupSsh(self)
-        self.getMain().serviceSoftware().install(
-                "dovecot",
-                "postfix",
-                "httpd",
-                "mod_dav_svn",
-                "mod_ssl",
-                "bind",
-                "java-1.6.0-openjdk",
-                'java-1.6.0-openjdk-devel',
-                'java-1.6.0-openjdk-src',
-                'java-1.6.0-openjdk-javadoc',
-                'java-1.6.0-openjdk-demo',
-                'tigervnc-server',
-                'php',
-                'php-mysql',
-                'mysql-server',
-                'gnome-system-log',
-                'system-config-bind',
-                'cyrus-sasl',
-                'cyrus-sasl-md5',
-                'cyrus-sasl-plain',
-                'selinux-policy-devel',
-                'logwatch',
-                'spamassassin',
-                'amavisd-new'
-            )
-        warning("Installed MySQL. Please copy the old files from '/oldroot/var/lib/mysql' to '/'. Also, you have to enable the service manually.")
-        setupBind(self)
-        setupSvn(self)
-        setupHttpd(self)
-        installHomePage(self)
-        setupPostfix(self)
-        setupDovecot(self)
-        createUsers(self)
-        setupMacoPolicy(self)
 
-    @updateOnly('laptop', 'cl_office')
-    def update4(self):
+#    @updateOnly('maco_server')
+#    def update1(self):
+#        self.getMain().serviceSoftware().addRepository('http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm')
 #        self.getMain().serviceSoftware().install(
-#                "emacs"
+#                "mercurial",
+#                "yumex",
+#                "subversion",
+#                "libreoffice-calc",
+#                "libreoffice-base",
+#                "libreoffice-writer",
+#                "libreoffice-langpack-sl",
+#                "libreoffice-langpack-ja",
+#                "libreoffice-langpack-en",
+#                "libreoffice-langpack-de",
+#                "libreoffice-pdfimport",
+##                "referencer", # Does not exist in F16 anymore
+#                "eclipse-texlipse",
+#                "meld",
+#                "powertop",
+#                "gimp",
+#                "nano",
+#                "xournal",
+#                "pidgin",
+#                "doxygen",
+#                "doxygen-doxywizard",
+#                "pidgin",
+#                "system-config-services",
+#                "zenity",
+#                "ffmpeg",
+#                "gstreamer-ffmpeg",
+#                "gstreamer-plugins-bad",
+#                "gstreamer-plugins-ugly",
+#                "mplayer",
+#                "vlc",
+#                "k3b",
+#                "k3b-extras-freeworld",
+#                "libmpg123",
+#                "sil-andika-fonts",
+#                "sil-charis-compact-fonts",
+#                "sil-charis-fonts",
+#                "sil-doulos-fonts",
+#                "sil-gentium-alt-fonts",
+#                "sil-gentium-basic-book-fonts",
+#                "sil-gentium-basic-fonts",
+#                "sil-gentium-basic-fonts-common",
+#                "sil-gentium-fonts",
+#                "sil-gentium-fonts-common",
+#                "sil-lateef-fonts",
+#                "sil-scheherazade-fonts",
+#                "tigervnc",
+#                'nautilus-open-terminal',
+#                'vim-enhanced',
+#                'java-1.6.0-openjdk-plugin',
+#                'libtool',
+#                'autoconf',
+#                'automake',
+#                'intltool',
+#                'gcc-c++',
+#                getReferencerDevelopmentDependencies()
 #            )
-        pass
-
-    @updateOnly('maco_server')
-    def update5(self):
-        self.getMain().serviceSoftware().addRepository('http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm')
-        self.getMain().serviceSoftware().install(
-                'inkscape',
-                'python-lxml',
-                'pdf2svg',
-                'pstoedit',
-                'easytag',
-                'liveusb-creator',
-                'calibre',
-                'pgadmin3',
-                'postgresql',
-                'java-1.6.0-openjdk-javadoc',
-                'gnubversion',
-                'subversion-gnome',
-                'kdesvn',
-                'mysql-workbench',
-                'libunrar',
-                'unrar',
-                'wget',
-                'filezilla',
-                'pidgin-otr'
-            )
-
-    # This update install software needed for building Isabelle.
-    @updateOnly('maco_server')
-    def update6(self):
+#
+#    @updateOnly('maco_server')
+#    def update3(self):
+#        configurePgSql(self)
+#        setupNetworking(self)
+#        configureNest(self)
+#        setupPrinting(self)
+#        setupSsh(self)
 #        self.getMain().serviceSoftware().install(
-#                'polyml',
-#                'scala',
-#                'bison',
-#                'flex',
-#                'cvs',
-#                'latexdiff',
-#                'uniconvertor',
-#                'pdfjam',
-#                'git-gui',
-#                'eclipse-jdt',
-#                'eclipse-egit',
-#                'gitk'
+#                "dovecot",
+#                "postfix",
+#                "httpd",
+#                "mod_dav_svn",
+#                "mod_ssl",
+#                "bind",
+#                "java-1.6.0-openjdk",
+#                'java-1.6.0-openjdk-devel',
+#                'java-1.6.0-openjdk-src',
+#                'java-1.6.0-openjdk-javadoc',
+#                'java-1.6.0-openjdk-demo',
+#                'tigervnc-server',
+#                'php',
+#                'php-mysql',
+#                'mysql-server',
+#                'gnome-system-log',
+#                'system-config-bind',
+#                'cyrus-sasl',
+#                'cyrus-sasl-md5',
+#                'cyrus-sasl-plain',
+#                'selinux-policy-devel',
+#                'logwatch',
+#                'spamassassin',
+#                'amavisd-new'
 #            )
-        pass
-
-    # This update configures WebDAV (for the calendar): It also updates the
-    # SELinux policies.
-    @updateOnly('maco_server')
-    def update7(self):
-        setupWebDAVCalendar(self)
-
-    # Installs Thunderbird. 
-    @updateOnly('maco_server')
-    def update8(self):
-        self.getMain().serviceSoftware().install(
-                "thunderbird",
-                "thunderbird-enigmail",
-                "thunderbird-lightning"
-            )
-
-    # Installs the weekly cron job for archiving the select Git repositories.
-    @updateOnly('maco_server')
-    def update9(self):
-        setupGit(self)
-
-    # Installs the daily cron job that backs up my calendars
-    @updateOnly('maco_server')
-    def update10(self):
-        setupCalendarBackup(self)
-
-    # Disables all the unnecessary services and enables some on all types of computers
-    @updateOnly('maco_server')
-    def update11(self):
-        setupServices1Common(self)
-
-    # Enables services needed by maco
-    @updateOnly('maco_server')
-    def update12(self):
-        setupServices2Maco(self)
-
-    # Disables all services not required for laptops
-    @updateOnly('laptop')
-    def update13(self):
-#        setupServices3Laptop(self)
-        pass
-
-    # Enables SSHD and assigns a static IP the home desktop computer (old maco).
-    @updateOnly('home_desktop')
-    def update14(self):
-#        setupDesktopNetworking(self)
-#        setupServices4Desktop(self)
-        pass
-
-    # Installs the mono-nat library for automatic configuration of port forwarding on the local router.
-    # This failed. I did not manage to set the automatic port forwarding up.
-    @updateOnly('maco_server')
-    def update15(self):
-        #self.getMain().serviceSoftware().install(
-        #        'mono-nat'
-        #    )
-        pass
-
+#        warning("Installed MySQL. Please copy the old files from '/oldroot/var/lib/mysql' to '/'. Also, you have to enable the service manually.")
+#        setupBind(self)
+#        setupSvn(self)
+#        setupHttpd(self)
+#        installHomePage(self)
+#        setupPostfix(self)
+#        setupDovecot(self)
+#        createUsers(self)
+#        setupMacoPolicy(self)
+#
+#    @updateOnly('laptop', 'cl_office')
+#    def update4(self):
+##        self.getMain().serviceSoftware().install(
+##                "emacs"
+##            )
+#        pass
+#
+#    @updateOnly('maco_server')
+#    def update5(self):
+#        self.getMain().serviceSoftware().addRepository('http://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-stable.noarch.rpm')
+#        self.getMain().serviceSoftware().install(
+#                'inkscape',
+#                'python-lxml',
+#                'pdf2svg',
+#                'pstoedit',
+#                'easytag',
+#                'liveusb-creator',
+#                'calibre',
+#                'pgadmin3',
+#                'postgresql',
+#                'java-1.6.0-openjdk-javadoc',
+#                'gnubversion',
+#                'subversion-gnome',
+#                'kdesvn',
+#                'mysql-workbench',
+#                'libunrar',
+#                'unrar',
+#                'wget',
+#                'filezilla',
+#                'pidgin-otr'
+#            )
+#
+#    # This update install software needed for building Isabelle.
+#    @updateOnly('maco_server')
+#    def update6(self):
+##        self.getMain().serviceSoftware().install(
+##                'polyml',
+##                'scala',
+##                'bison',
+##                'flex',
+##                'cvs',
+##                'latexdiff',
+##                'uniconvertor',
+##                'pdfjam',
+##                'git-gui',
+##                'eclipse-jdt',
+##                'eclipse-egit',
+##                'gitk'
+##            )
+#        pass
+#
+#    # This update configures WebDAV (for the calendar): It also updates the
+#    # SELinux policies.
+#    @updateOnly('maco_server')
+#    def update7(self):
+#        setupWebDAVCalendar(self)
+#
+#    # Installs Thunderbird. 
+#    @updateOnly('maco_server')
+#    def update8(self):
+#        self.getMain().serviceSoftware().install(
+#                "thunderbird",
+#                "thunderbird-enigmail",
+#                "thunderbird-lightning"
+#            )
+#
+#    # Installs the weekly cron job for archiving the select Git repositories.
+#    @updateOnly('maco_server')
+#    def update9(self):
+#        setupGit(self)
+#
+#    # Installs the daily cron job that backs up my calendars
+#    @updateOnly('maco_server')
+#    def update10(self):
+#        setupCalendarBackup(self)
+#
+#    # Disables all the unnecessary services and enables some on all types of computers
+#    @updateOnly('maco_server')
+#    def update11(self):
+#        setupServices1Common(self)
+#
+#    # Enables services needed by maco
+#    @updateOnly('maco_server')
+#    def update12(self):
+#        setupServices2Maco(self)
+#
+#    # Disables all services not required for laptops
+#    @updateOnly('laptop')
+#    def update13(self):
+##        setupServices3Laptop(self)
+#        pass
+#
+#    # Enables SSHD and assigns a static IP the home desktop computer (old maco).
+#    @updateOnly('home_desktop')
+#    def update14(self):
+##        setupDesktopNetworking(self)
+##        setupServices4Desktop(self)
+#        pass
+#
+#    # Installs the mono-nat library for automatic configuration of port forwarding on the local router.
+#    # This failed. I did not manage to set the automatic port forwarding up.
+#    @updateOnly('maco_server')
+#    def update15(self):
+#        #self.getMain().serviceSoftware().install(
+#        #        'mono-nat'
+#        #    )
+#        pass
 
 
     ###
