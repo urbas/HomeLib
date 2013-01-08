@@ -88,8 +88,11 @@ MACO_DOVECOT_PAM_DIR='pam.d'
 MACO_SELINUX_POLICY_DIR='MainSELinuxPolicy'
 MACO_CALENDARS_DIR='calendars'
 
+def dirNastavitve(cfgScript):
+    return cfgScript.getMain().getGiCfg('MY_NASTAVITVE_DIR');
+
 def dirMacoGeneral(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), MACO_GENERAL_DIR)
+    return join(dirNastavitve(cfgScript), MACO_GENERAL_DIR)
 
 def dirMacoConfig(cfgScript):
     return join(dirMacoGeneral(cfgScript), MACO_CONFIG_DIR)
@@ -104,19 +107,19 @@ def dirSystemdUnitsDir(cfgScript):
     return join(dirMacoConfig(cfgScript), 'lib', 'systemd', 'system')
 
 def dirPostfix(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), MACO_POSTFIX_DIR)
+    return join(dirNastavitve(cfgScript), MACO_POSTFIX_DIR)
 
 def dirDovecot(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), MACO_DOVECOT_DIR)
+    return join(dirNastavitve(cfgScript), MACO_DOVECOT_DIR)
 
 def dirDovecotPamDir(cfgScript):
     return join(dirDovecot(cfgScript), MACO_DOVECOT_PAM_DIR)
 
 def dirHttpd(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), MACO_HTTPD_DIR)
+    return join(dirNastavitve(cfgScript), MACO_HTTPD_DIR)
 
 def dirBind(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), MACO_BIND_DIR)
+    return join(dirNastavitve(cfgScript), MACO_BIND_DIR)
 
 def dirBindConf(cfgScript):
     return join(dirBind(cfgScript), MACO_BIND_CONF_DIR)
@@ -125,7 +128,7 @@ def dirBindSlaves(cfgScript):
     return join(dirBind(cfgScript), MACO_BIND_SLAVES_DIR)
 
 def dirCertifikati(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), MACO_CERTIFIKATI_DIR)
+    return join(dirNastavitve(cfgScript), MACO_CERTIFIKATI_DIR)
 
 def dirCertifikatiStartSsl(cfgScript):
     return join(dirCertifikati(cfgScript), MACO_CERTIFIKATI_STARTSSL_DIR)
@@ -158,7 +161,7 @@ def dirSsh(cfgScript):
     return join(dirEtc(cfgScript), MACO_SSH_DIR)
 
 def dirSvn(cfgScript):
-    return join(cfgScript.getMain().dirNastavitve(), 'SVN')
+    return join(dirNastavitve(cfgScript), 'SVN')
 
 def dirSvnPolicy(cfgScript):
     return join(dirSvn(cfgScript), 'Policy')

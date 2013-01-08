@@ -66,7 +66,7 @@ class Service(object):
 class MultiService(Service):
     """
     The base-class of all services in this library that have multiple
-    implementations (Nest and Software services are just two examples).
+    implementations (Services and Software services are just two examples).
     """
     def __init__(self, main=None):
         Service.__init__(self, main)

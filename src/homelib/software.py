@@ -94,31 +94,3 @@ class Software(MultiService):
         @param  uri The uri of the repository to add.
         """
         pass
-
-
-
-    def disableServices(self, services, levels = None):
-        """
-        Disables the given services for the given runlevels (if the latter are
-        specified). If no runlevels are specified, the services are disabled for
-        all runlevels.
-
-        @param  services    A list of services.
-
-        @param  levels      A string made up of numbers from 0 to 6.
-        """
-        raise NotImplementedError
-
-
-
-    def enableServices(self, services, levels = None):
-        """
-        Enables the given services for the given runlevels (if the latter are
-        specified). If no runlevels are specified, the services are enabled for
-        all runlevels.
-
-        @param  services    A list of services.
-
-        @param  levels      A string made up of numbers from 0 to 6.
-        """
-        raise NotImplementedError
