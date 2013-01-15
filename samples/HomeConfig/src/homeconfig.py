@@ -31,9 +31,8 @@
 from homelib.config import ConfigScript
 import os
 from logging import warning, info
-from homelib.utils import appendLinesToFile, createLink,\
-    UTILS_CREATE_LINK_DELETE, joinPaths, linkInSubfolders,\
-    UTILS_CREATE_LINK_MAKE_TARGET_DIRS
+import homelib.utils
+from homelib.utils import *
 
 
 
@@ -83,6 +82,20 @@ class HomeConfig(ConfigScript):
     def update2(self):
         # Install `authorized_keys` for the SSH server:
         createLink([self.getMain().dirHome(), 'Nest/Nastavitve/SSH/authorized_keys'], [self.getMain().dirHome(), '.ssh/authorized_keys'], UTILS_CREATE_LINK_DELETE | UTILS_CREATE_LINK_MAKE_TARGET_DIRS, 0640)
+
+    def update3(self):
+        # Install the SSH keys:
+        createLink([self.getNastavitveDir(), 'Osebno', 'id_rsa'],
+                   [self.getMain().dirHome(), '.ssh', 'id_rsa'],
+                   UTILS_CREATE_LINK_COPY | UTILS_CREATE_LINK_MAKE_TARGET_DIRS,
+                   0600);
+        createLink([self.getNastavitveDir(), 'Osebno', 'id_rsa.pub'],
+                   [self.getMain().dirHome(), '.ssh', 'id_rsa.pub'],
+                   UTILS_CREATE_LINK_COPY,
+                   0640);
+        
+    def getNastavitveDir(self):
+        return self.getMain().getGiCfg('MY_NEST_DIR');
 
 
 
