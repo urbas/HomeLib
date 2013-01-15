@@ -93,6 +93,16 @@ class HomeConfig(ConfigScript):
                    [self.getMain().dirHome(), '.ssh', 'id_rsa.pub'],
                    UTILS_CREATE_LINK_COPY,
                    0640);
+
+    def update4(self):
+        createLink([self.getNastavitveDir(), 'Osebno', 'GPG', 'pubring.gpg'],
+                   [self.getMain().dirHome(), '.gnupg', 'pubring.gpg'],
+                   UTILS_CREATE_LINK_MAKE_TARGET_DIRS,
+                   0600);
+        createLink([self.getNastavitveDir(), 'Osebno', 'GPG', 'secring.gpg'],
+                   [self.getMain().dirHome(), '.gnupg', 'secring.gpg'],
+                   UTILS_CREATE_LINK_MAKE_TARGET_DIRS,
+                   0600);
         
     def getNastavitveDir(self):
         return self.getMain().getGiCfg('MY_NEST_DIR');
