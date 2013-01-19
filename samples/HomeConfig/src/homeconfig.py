@@ -85,26 +85,32 @@ class HomeConfig(ConfigScript):
 
     def update3(self):
         # Install the SSH keys:
-        createLink([self.getNastavitveDir(), 'Osebno', 'id_rsa'],
+        createLink([self.getNestDir(), 'Osebno', 'id_rsa'],
                    [self.getMain().dirHome(), '.ssh', 'id_rsa'],
                    UTILS_CREATE_LINK_COPY | UTILS_CREATE_LINK_MAKE_TARGET_DIRS,
                    0600);
-        createLink([self.getNastavitveDir(), 'Osebno', 'id_rsa.pub'],
+        createLink([self.getNestDir(), 'Osebno', 'id_rsa.pub'],
                    [self.getMain().dirHome(), '.ssh', 'id_rsa.pub'],
                    UTILS_CREATE_LINK_COPY,
                    0640);
 
     def update4(self):
-        createLink([self.getNastavitveDir(), 'Osebno', 'GPG', 'pubring.gpg'],
+        createLink([self.getNestDir(), 'Osebno', 'GPG', 'pubring.gpg'],
                    [self.getMain().dirHome(), '.gnupg', 'pubring.gpg'],
                    UTILS_CREATE_LINK_MAKE_TARGET_DIRS,
                    0600);
-        createLink([self.getNastavitveDir(), 'Osebno', 'GPG', 'secring.gpg'],
+        createLink([self.getNestDir(), 'Osebno', 'GPG', 'secring.gpg'],
                    [self.getMain().dirHome(), '.gnupg', 'secring.gpg'],
                    UTILS_CREATE_LINK_MAKE_TARGET_DIRS,
                    0600);
+
+    def update5(self):
+        createLink([self.getNestDir(), 'Nastavitve/Mercurial/GlobalHomeConfiguration', 'hgrc'],
+                   [self.getMain().dirHome(), '.hgrc'],
+                   UTILS_CREATE_LINK_MAKE_TARGET_DIRS | UTILS_CREATE_LINK_DELETE,
+                   0664);
         
-    def getNastavitveDir(self):
+    def getNestDir(self):
         return self.getMain().getGiCfg('MY_NEST_DIR');
 
 
