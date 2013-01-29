@@ -48,7 +48,6 @@ from maco.utils import *
 from mydev.referencer import *
 from maco.services import *
 import homelib
-from _pydev_jy_imports_tipper import Info
 
 MACHINE_NEST_DIR='/etc/Nest';
 
