@@ -48,6 +48,7 @@ from maco.utils import *
 from mydev.referencer import *
 from maco.services import *
 import homelib
+from _pydev_jy_imports_tipper import Info
 
 MACHINE_NEST_DIR='/etc/Nest';
 
@@ -298,29 +299,14 @@ class MachineConfig(ConfigScript):
         return self.getMain().serviceMyMachines().isMachineOfType(types)
 
     def macoSpecificStuff(self):
-        if not self.getMain().serviceMyMachines().isMachineOfType('maco_server'):
+        if not self.isMachineOfType('maco_server'):
             return
         if not checkMaco():
             raise Exception("This machine identifies itself as a 'maco_server'. However, it does not satisfy the above conditions.")
         # Update the /etc/Nest repository:
+        info('Updating the global Nest configuration...');
         if homelib.utils.runCmdCwd(MACHINE_NEST_DIR, 'hg', 'pull') <> 0 or homelib.utils.runCmdCwd(MACHINE_NEST_DIR, 'hg', 'update') <> 0: 
             raise Exception("Could not update the Nest.");
     
     def checkMaco(self):
         return isdir(MACHINE_NEST_DIR) and isdir(join(MACHINE_NEST_DIR, '.hg'));
-
-    def updateEtcNest(self):
-        # Okay, we'll clone a copy of Nest into '/etc/Nest' -- to be able to
-        # link to configuration files properly/directly.
-        nestPath = '/etc/Nest'
-        # @type nestService Nest
-        nestService = self.getMain().serviceNest()
-        if not isdir(nestPath) or not isdir(join(nestPath, '.hg')):
-            nestService.cloneUri(nestService.getCentralRepoPath() if self.isMachineOfType('maco_server') else None, nestPath)
-            info("Cloned 'Nest' to '" + nestPath + "'.")
-        # Now set the Nest folder to the above cloned one.
-        self.getMain().setDirNest(nestPath)
-        # Update the Nest (if the user has not disabled it).
-        if not ('--no-nest-pull' in argv):
-            nestService.pullUpdate()
-            info("Updated 'Nest' at '" + nestPath + "'.")
