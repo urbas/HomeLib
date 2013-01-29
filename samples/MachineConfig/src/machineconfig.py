@@ -47,6 +47,9 @@ from maco.users import *
 from maco.utils import *
 from mydev.referencer import *
 from maco.services import *
+import homelib
+
+MACHINE_NEST_DIR='/etc/Nest';
 
 # Parameters:
 #
@@ -54,7 +57,6 @@ from maco.services import *
 
 class MachineConfig(ConfigScript):
     def preRun(self):
-#        self.cloneUpdateEtcNest()
         self.macoSpecificStuff()
 
     def postRun(self):
@@ -299,9 +301,15 @@ class MachineConfig(ConfigScript):
         if not self.getMain().serviceMyMachines().isMachineOfType('maco_server'):
             return
         if not checkMaco():
-            raise Exception("This machine identifies itself as a '" + 'maco_server' + "'. However, it does not satisfy the above conditions.")
+            raise Exception("This machine identifies itself as a 'maco_server'. However, it does not satisfy the above conditions.")
+        # Update the /etc/Nest repository:
+        if homelib.utils.runCmdCwd(MACHINE_NEST_DIR, 'hg', 'pull') <> 0 or homelib.utils.runCmdCwd(MACHINE_NEST_DIR, 'hg', 'update') <> 0: 
+            raise Exception("Could not update the Nest.");
+    
+    def checkMaco(self):
+        return isdir(MACHINE_NEST_DIR) and isdir(join(MACHINE_NEST_DIR, '.hg'));
 
-    def cloneUpdateEtcNest(self):
+    def updateEtcNest(self):
         # Okay, we'll clone a copy of Nest into '/etc/Nest' -- to be able to
         # link to configuration files properly/directly.
         nestPath = '/etc/Nest'

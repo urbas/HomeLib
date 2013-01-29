@@ -761,6 +761,21 @@ def runCmd(filePath, * args):
     """
     return subprocess.call(flatten(joinPaths(filePath), args))
 
+def runCmdCwd(workingDirectory, filePath, * args):
+    """
+    Executes the command with the given arguments and returns the returncode
+    of the process. This method blocks until the application finishes.
+
+    @param  workingDirectory    The working directory in which to to execute the program.
+
+    @param  filePath    The file to execute (the program).
+
+    @param  args    A list of arguments to the program.
+
+    @returns    The return code of the started process.
+    """
+    return subprocess.call(flatten(joinPaths(filePath), args), cwd=joinPaths(workingDirectory))
+
 def runCmdGetString(filePath, * args):
     """
     Executes the command with the given arguments and returns the output of the
