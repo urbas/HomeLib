@@ -49,8 +49,6 @@ from mydev.referencer import *
 from maco.services import *
 import homelib
 
-MACHINE_NEST_DIR='/etc/Nest';
-
 # Parameters:
 #
 # noselinux
@@ -293,6 +291,9 @@ class MachineConfig(ConfigScript):
     ###
     ### Helper Functions
     ###
+        
+    def getNestDir(self):
+        return self.getMain().getGiCfg('MY_NEST_DIR');
 
     def isMachineOfType(self, *types):
         return self.getMain().serviceMyMachines().isMachineOfType(types)
@@ -304,8 +305,8 @@ class MachineConfig(ConfigScript):
             raise Exception("This machine identifies itself as a 'maco_server'. However, it does not satisfy the above conditions.")
         # Update the /etc/Nest repository:
         info('Updating the global Nest configuration...');
-        if homelib.utils.runCmdCwd(MACHINE_NEST_DIR, 'hg', 'pull') <> 0 or homelib.utils.runCmdCwd(MACHINE_NEST_DIR, 'hg', 'update') <> 0: 
+        if homelib.utils.runCmdCwd(self.getNestDir(), 'hg', 'pull') <> 0 or homelib.utils.runCmdCwd(self.getNestDir(), 'hg', 'update') <> 0: 
             raise Exception("Could not update the Nest.");
     
     def checkMaco(self):
-        return isdir(MACHINE_NEST_DIR) and isdir(join(MACHINE_NEST_DIR, '.hg'));
+        return isdir(self.getNestDir()) and isdir(join(self.getNestDir(), '.hg'));
