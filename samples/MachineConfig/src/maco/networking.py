@@ -106,6 +106,13 @@ def installHttpdCerts(cfgScript):
     createLink([dirCertifikatiStartSsl(cfgScript), 'sub.class1.server.ca.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0440, 'root', 'root')
     restoreconR(CERTS_DIR)
     installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'urbas.si.20130108.key.pem'], 'httpd.urbas.si.key.pem')
+    
+    createLink([dirCertifikatiStartSsl(cfgScript), 'trainerjim.banda.si.20130207.cert.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
+    installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'trainerjim.banda.si.20130207.key.pem'])
+    
+    createLink([dirCertifikatiStartSsl(cfgScript), 'trainerjim.urbas.si.20130206.cert.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
+    installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'trainerjim.urbas.si.20130206.key.pem'])
+    
     info('Installed the HTTPD SSL certificates and keys.')
 
 
@@ -136,7 +143,7 @@ def setupBind(cfgScript):
     createLink([dirBindConf(cfgScript), 'stanujem.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
     createLink([dirBindConf(cfgScript), 'stanuj.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
     createLink([dirBindConf(cfgScript), 'banda.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
-    createLink([dirBindSlaves(cfgScript), 'vcsweb.com.db'], NAMED_SLAVES_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'named', 'named')
+    #createLink([dirBindSlaves(cfgScript), 'vcsweb.com.db'], NAMED_SLAVES_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'named', 'named')
     restoreconR(NAMED_SLAVES_DIR)
     info('Configured BIND (domain name system server).')
 
