@@ -114,7 +114,7 @@ def dirDovecot(cfgScript):
     return join(dirNastavitve(cfgScript), MACO_DOVECOT_DIR)
 
 def dirDovecotConfD(cfgScript):
-    return join(dirDovecot(cfgScript), 'conf.d')
+    return join(dirDovecot(cfgScript), 'Configuration', 'conf.d')
 
 def dirDovecotPamDir(cfgScript):
     return join(dirDovecot(cfgScript), MACO_DOVECOT_PAM_DIR)
