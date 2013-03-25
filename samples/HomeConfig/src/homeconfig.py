@@ -33,6 +33,7 @@ import os
 from logging import warning, info
 import homelib.utils
 from homelib.utils import *
+from homelib.config import *
 
 
 
