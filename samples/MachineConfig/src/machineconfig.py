@@ -75,6 +75,10 @@ class MachineConfig(ConfigScript):
     def update3(self):
         setupDovecot(self)
 
+    @updateOnly('maco_server')
+    def update4(self):
+        setupPostfix(self)
+
 
 #    @updateOnly('maco_server')
 #    def update1(self):
