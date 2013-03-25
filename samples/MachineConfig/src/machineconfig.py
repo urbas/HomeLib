@@ -63,16 +63,9 @@ class MachineConfig(ConfigScript):
     def postFail(self, ex):
         pass
 
-    @updateIf(lambda machines: machines.isMachineOfType('laptop') and machines.isMachineOfType('fedora'))
+    @updateOnly('maco_server')
     def update1(self):
-        self.getMain().serviceServices().disableServices([
-            'abrt-ccpp',
-            'abrt-oops',
-            'abrt-vmcore',
-            'mdmonitor-takeover',
-            'sendmail'
-        ])
-
+        setupHttpd(self)
 
 
 #    @updateOnly('maco_server')
