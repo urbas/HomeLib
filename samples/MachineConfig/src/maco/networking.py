@@ -127,6 +127,7 @@ def setupHttpd(cfgScript):
 
 
 def setupBind(cfgScript):
+    createLink([dirBindConf(cfgScript), 'named.conf.default-zones'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK, 0640, 'root', 'bind')
     createLink([dirBindConf(cfgScript), 'named.conf.options'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK, 0640, 'root', 'bind')
     createLink([dirBindConf(cfgScript), 'named.conf.local'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK, 0640, 'root', 'bind')
     createLink([dirBindConf(cfgScript), '90.157.141.db'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
@@ -144,10 +145,11 @@ def setupDovecot(cfgScript):
     installUrbasCert(cfgScript, 'mail.urbas.si.20110122.cert.pem', 'mail.urbas.si.cert.pem')
 
     createLink([dirDovecot(cfgScript), 'dovecot.conf'], DOVECOT_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
-    restorecon(join(DOVECOT_ETC_DIR, 'dovecot.conf'))
-
-    createLink([dirDovecotPamDir(cfgScript), 'dovecot'], PAMD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
-    restorecon(join(PAMD_DIR, 'dovecot'))
+    
+    createLink([dirDovecotConfD(cfgScript), '10-auth.conf'], DOVECOT_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+    createLink([dirDovecotConfD(cfgScript), '10-mail.conf'], DOVECOT_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+    createLink([dirDovecotConfD(cfgScript), '10-master.conf'], DOVECOT_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+    createLink([dirDovecotConfD(cfgScript), '10-ssl.conf'], DOVECOT_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
 
 
 
@@ -157,7 +159,7 @@ def setupPostfix(cfgScript):
     createLink([dirPostfix(cfgScript), 'main.cf'], POSTFIX_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
     createLink([dirPostfix(cfgScript), 'master.cf'], POSTFIX_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
     createLink([dirPostfix(cfgScript), 'aliases'], ETC_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'smmsp')
-    restorecon(join(ETC_DIR, 'aliases'))
+#     restorecon(join(ETC_DIR, 'aliases'))
 
     srcAliases = join(dirPostfix(cfgScript), 'aliases')
     runCmd('postalias', 'hash:' + srcAliases)
@@ -166,7 +168,7 @@ def setupPostfix(cfgScript):
         remove(aliases)
     move(join(dirPostfix(cfgScript), 'aliases.db'), aliases)
     chprops(aliases, 0644, 'root', 'smmsp')
-    restorecon(aliases)
+#     restorecon(aliases)
 
     runCmd('newaliases')
 
@@ -178,7 +180,7 @@ def setupPostfix(cfgScript):
     move(join(dirPostfix(cfgScript), 'local_recipient_table.db'), POSTFIX_ETC_DIR)
     chprops(join(POSTFIX_ETC_DIR, 'local_recipient_table.db'), 0644, 'root', 'root')
 
-    restoreconR(POSTFIX_ETC_DIR)
+#     restoreconR(POSTFIX_ETC_DIR)
 
 
 

@@ -52,6 +52,7 @@ NAMED_VAR_CONF_DIR='/var/named'
 NAMED_SLAVES_DIR='/var/named/slaves'
 POSTFIX_ETC_DIR='/etc/postfix'
 DOVECOT_ETC_DIR='/etc/dovecot'
+DOVECOT_CONFD_DIR='/etc/dovecot/conf.d'
 PAMD_DIR='/etc/pam.d'
 SYSTEMD_UNITS_DIR='/lib/systemd/system'
 
@@ -111,6 +112,9 @@ def dirPostfix(cfgScript):
 
 def dirDovecot(cfgScript):
     return join(dirNastavitve(cfgScript), MACO_DOVECOT_DIR)
+
+def dirDovecotConfD(cfgScript):
+    return join(dirDovecot(cfgScript), 'conf.d')
 
 def dirDovecotPamDir(cfgScript):
     return join(dirDovecot(cfgScript), MACO_DOVECOT_PAM_DIR)

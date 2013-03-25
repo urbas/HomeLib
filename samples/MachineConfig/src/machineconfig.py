@@ -71,6 +71,10 @@ class MachineConfig(ConfigScript):
     def update2(self):
         setupBind(self)
 
+    @updateOnly('maco_server')
+    def update3(self):
+        setupDovecot(self)
+
 
 #    @updateOnly('maco_server')
 #    def update1(self):
