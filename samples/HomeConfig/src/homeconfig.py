@@ -109,6 +109,10 @@ class HomeConfig(ConfigScript):
                    [self.getMain().dirHome(), '.hgrc'],
                    UTILS_CREATE_LINK_MAKE_TARGET_DIRS | UTILS_CREATE_LINK_DELETE,
                    0664);
+
+    @updateOnly('maco_server')
+    def update6(self):
+        linkInSubfolders([self.getMain().dirHome(), 'Nest/Nastavitve/Mercurial/Nest Configuration/hgrc.maco'], None, UTILS_CREATE_LINK_DELETE, [self.getMain().dirHome(), 'Nest'], '.hg')
         
     def getNestDir(self):
         return self.getMain().getGiCfg('MY_NEST_DIR');
