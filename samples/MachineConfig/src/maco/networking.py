@@ -158,7 +158,8 @@ def setupPostfix(cfgScript):
     installUrbasCert(cfgScript, 'smtp.urbas.si.20110122.cert.pem', 'smtp.urbas.si.cert.pem')
     createLink([dirPostfix(cfgScript), 'main.cf'], POSTFIX_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
     createLink([dirPostfix(cfgScript), 'master.cf'], POSTFIX_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
-    createLink([dirPostfix(cfgScript), 'aliases'], ETC_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'smmsp')
+    createLink([dirPostfix(cfgScript), 'sasl', 'smtpd.conf'], [POSTFIX_ETC_DIR, 'sasl'], UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+    createLink([dirPostfix(cfgScript), 'aliases'], ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
 #     restorecon(join(ETC_DIR, 'aliases'))
 
     srcAliases = join(dirPostfix(cfgScript), 'aliases')
