@@ -67,6 +67,10 @@ class MachineConfig(ConfigScript):
     def update1(self):
         setupHttpd(self)
 
+    @updateOnly('maco_server')
+    def update2(self):
+        setupBind(self)
+
 
 #    @updateOnly('maco_server')
 #    def update1(self):

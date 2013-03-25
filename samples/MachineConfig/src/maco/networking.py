@@ -127,15 +127,13 @@ def setupHttpd(cfgScript):
 
 
 def setupBind(cfgScript):
-    createLink([dirBindConf(cfgScript), 'named.conf'], ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0640, 'root', 'named')
-    restorecon(join(ETC_DIR, 'named.conf'))
-    createLink([dirBindConf(cfgScript), '90.157.141.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
-    createLink([dirBindConf(cfgScript), 'urbas.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
-    createLink([dirBindConf(cfgScript), 'stanujem.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
-    createLink([dirBindConf(cfgScript), 'stanuj.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
-    createLink([dirBindConf(cfgScript), 'banda.si.db'], NAMED_VAR_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
+    createLink([dirBindConf(cfgScript), 'named.conf'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK, 0640, 'root', 'named')
+    createLink([dirBindConf(cfgScript), '90.157.141.db'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
+    createLink([dirBindConf(cfgScript), 'urbas.si.db'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
+    createLink([dirBindConf(cfgScript), 'stanujem.si.db'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
+    createLink([dirBindConf(cfgScript), 'stanuj.si.db'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
+    createLink([dirBindConf(cfgScript), 'banda.si.db'], NAMED_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'root', 'root')
     #createLink([dirBindSlaves(cfgScript), 'vcsweb.com.db'], NAMED_SLAVES_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0644, 'named', 'named')
-    restoreconR(NAMED_SLAVES_DIR)
     info('Configured BIND (domain name system server).')
 
 

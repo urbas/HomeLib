@@ -114,7 +114,7 @@ def installPrivateKey(cfgScript, keyPath, destName = None):
     if not exists(destPath):
         runCmd([dirCertifikati(cfgScript), 'DecryptPrivateKey.sh'], keyPath, '-o', destPath)
         chmod(destPath, 0400)
-        restorecon(destPath)
+#         restorecon(destPath)
         info("Installed private key '" + destPath + "'.")
 
 def installUrbasPrivateKey(cfgScript, keyName, destName = None):
