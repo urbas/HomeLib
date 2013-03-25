@@ -144,7 +144,7 @@ def setupDovecot(cfgScript):
     installUrbasPrivateKey(cfgScript, 'mail.urbas.si.20110122.key.pem', 'mail.urbas.si.key.pem')
     installUrbasCert(cfgScript, 'mail.urbas.si.20110122.cert.pem', 'mail.urbas.si.cert.pem')
 
-    createLink([dirDovecot(cfgScript), 'dovecot.conf'], DOVECOT_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+    createLink([dirDovecotConf(cfgScript), 'dovecot.conf'], DOVECOT_ETC_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
     
     createLink([dirDovecotConfD(cfgScript), '10-auth.conf'], DOVECOT_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
     createLink([dirDovecotConfD(cfgScript), '10-mail.conf'], DOVECOT_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')

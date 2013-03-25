@@ -135,7 +135,7 @@ def installUrbasPrivateKey(cfgScript, keyName, destName = None):
     if not exists(destPath):
         runCmd([dirCertifikati(cfgScript), 'DecryptPrivateKey.sh'], keyName, '-o', destPath)
         chmod(destPath, 0400)
-        restorecon(destPath)
+#         restorecon(destPath)
         info("Installed private key '" + destPath + "'.")
 
 def installUrbasCert(cfgScript, certName, destName = None):
@@ -153,5 +153,5 @@ def installUrbasCert(cfgScript, certName, destName = None):
     else:
         destPath = join(CERTS_DIR, destName)
     createLink([dirCertifikatiUrbasSi(cfgScript), 'public', certName], destPath, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
-    restorecon(destPath)
+#     restorecon(destPath)
     info("Installed certificate '" + destPath + "'.")

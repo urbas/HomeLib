@@ -113,8 +113,11 @@ def dirPostfix(cfgScript):
 def dirDovecot(cfgScript):
     return join(dirNastavitve(cfgScript), MACO_DOVECOT_DIR)
 
+def dirDovecotConf(cfgScript):
+    return join(dirDovecot(cfgScript), 'Configuration')
+
 def dirDovecotConfD(cfgScript):
-    return join(dirDovecot(cfgScript), 'Configuration', 'conf.d')
+    return join(dirDovecotConf(cfgScript), 'conf.d')
 
 def dirDovecotPamDir(cfgScript):
     return join(dirDovecot(cfgScript), MACO_DOVECOT_PAM_DIR)
