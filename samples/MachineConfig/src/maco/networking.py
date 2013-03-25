@@ -104,34 +104,25 @@ def setupCalendarBackup(cfgScript):
 def installHttpdCerts(cfgScript):
     createLink([dirCertifikatiStartSsl(cfgScript), 'urbas.si.20130108.cert.pem'], [CERTS_DIR, 'httpd.urbas.si.cert.pem'], UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
     createLink([dirCertifikatiStartSsl(cfgScript), 'sub.class1.server.ca.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0440, 'root', 'root')
-#     restoreconR(CERTS_DIR)
     installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'urbas.si.20130108.key.pem'], 'httpd.urbas.si.key.pem')
-    
-#     createLink([dirCertifikatiStartSsl(cfgScript), 'trainerjim.banda.si.20130207.cert.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
-#     installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'trainerjim.banda.si.20130207.key.pem'])
-#     
-#     createLink([dirCertifikatiStartSsl(cfgScript), 'trainerjim.urbas.si.20130206.cert.pem'], CERTS_DIR, UTILS_CREATE_LINK_HARD_LINK | UTILS_CREATE_LINK_DELETE, 0444, 'root', 'root')
-#     installPrivateKey(cfgScript, [dirCertifikatiStartSsl(cfgScript), 'trainerjim.urbas.si.20130206.key.pem'])
-    
     info('Installed the HTTPD SSL certificates and keys.')
 
 
 
 def setupHttpd(cfgScript):
     installHttpdCerts(cfgScript)
-
-    createLink([dirEtcHttpdConf(cfgScript), 'httpd.conf'], HTTPD_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
-    info('Configured HTTPD (deployed the main configuration file).')
-
-    createLink([dirEtcHttpdConfd(cfgScript), 'subversion.conf'], HTTPD_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
-    info('Configured HTTPD to show the SVN repository on the web.')
-
-    createLink([dirEtcHttpdConfd(cfgScript), 'ssl.conf'], HTTPD_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
-    restoreconR(HTTPD_CONFD_DIR)
-    info('Configured HTTPD to use the proper certificates.')
-
-    runCmd('setfacl', '-R', '-m', 'user:apache:rwx,group:apache:rwx,default:user:apache:rwx,default:group:apache:rwx,default:other:r,default:group::r,default:user::rwx,default:mask:rwx,mask:rwx', WWW_HTML_DIR)
-    info('Configured HTML folder access control lists.')
+#     createLink([dirEtcHttpdConf(cfgScript), 'httpd.conf'], HTTPD_CONF_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+#     info('Configured HTTPD (deployed the main configuration file).')
+# 
+#     createLink([dirEtcHttpdConfd(cfgScript), 'subversion.conf'], HTTPD_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+#     info('Configured HTTPD to show the SVN repository on the web.')
+# 
+#     createLink([dirEtcHttpdConfd(cfgScript), 'ssl.conf'], HTTPD_CONFD_DIR, UTILS_CREATE_LINK_HARD_LINK, 0644, 'root', 'root')
+#     restoreconR(HTTPD_CONFD_DIR)
+#     info('Configured HTTPD to use the proper certificates.')
+# 
+#     runCmd('setfacl', '-R', '-m', 'user:apache:rwx,group:apache:rwx,default:user:apache:rwx,default:group:apache:rwx,default:other:r,default:group::r,default:user::rwx,default:mask:rwx,mask:rwx', WWW_HTML_DIR)
+#     info('Configured HTML folder access control lists.')
 
 
 
